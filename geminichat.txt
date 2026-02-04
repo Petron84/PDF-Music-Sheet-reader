@@ -1,0 +1,42 @@
+import cv2 as cv
+import matplotlib.pyplot as plt
+import os
+import numpy as np
+
+# 1. Define image path safely using 'os'
+# This ensures it works on Windows (backslashes) and Mac/Linux (forward slashes)
+img_path = os.path.join('.', 'test.jpg')
+
+# 2. Load the Image
+img = cv.imread(img_path)
+
+if img is None:
+    print(f"Error: Could not find image at {img_path}")
+else:
+    print(f"Image Shape: {img.shape}") 
+    # Output is usually (Height, Width, Channels)
+
+    # --- THE BIG CONFLICT: BGR vs RGB ---
+    
+    # OpenCV loads images as BGR (Blue, Green, Red).
+    # Matplotlib expects images as RGB (Red, Green, Blue).
+    
+    # If we convert it, Matplotlib will look correct.
+    img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+
+    # Let's plot them side-by-side to see the difference
+    plt.figure(figsize=(10, 5))
+
+    # Subplot 1: Showing the raw BGR image in Matplotlib (Will look weird/blue-ish)
+    plt.subplot(1, 2, 1)
+    plt.imshow(img) 
+    plt.title("Raw OpenCV Image (BGR)\n(Colors look wrong in Matplotlib)")
+    plt.axis('off')
+
+    # Subplot 2: Showing the converted RGB image
+    plt.subplot(1, 2, 2)
+    plt.imshow(img_rgb)
+    plt.title("Converted Image (RGB)\n(Colors look correct)")
+    plt.axis('off')
+
+    plt.show()
