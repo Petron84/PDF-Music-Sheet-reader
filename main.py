@@ -7,7 +7,7 @@ import numpy as np
 #from geminicode import geminihelper
 
 def readMyPic():
-    img = cv.imread(".venv\\main-0203\\media\\blanktreble.png")
+    img = cv.imread(".venv\\main-0203\\media\\blanktreble.png") # Modified to accommodate the way my files are organized and the virtual environment system
     cv.waitKey(0)
     
     # img.shape returns a tuple: (Height, Width, Channels)
@@ -55,4 +55,5 @@ def findFirstBlack(image,segment):
     
 if __name__ == "__main__":
     readMyPic()
+
     #geminihelper()
