@@ -95,16 +95,79 @@ def dynamic_readPic():
         img[top, :] = [255, 0, 0]
         img[bottom, :] = [0, 255, 0]
         print(f"Detected staff at Y-range: {top} to {bottom} (Height: {bottom-top})")
+    
+    #resize image to a fixed dimension
+    img = cv.resize(img, (800, 1000))
     cv.imshow("Dynamic Staff Detection", img)
     cv.waitKey(0)
     cv.destroyAllWindows()
- 
-def findFirstBlack(image,segment):
-     pass
+
+
+def detect_clef(img_path, template_path):
+    # this function just tests out if the program can detect the clef, similar to detect_multi_scale
+    img = cv.imread(img_path)
+    template = cv.imread(template_path, 0) # the big clef crop
+    if img is None or template is None:
+        print("Missing files!")
+        return
+    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    result = cv.matchTemplate(gray, template, cv.TM_CCOEFF_NORMED)
+    (_, maxVal, _, maxLoc) = cv.minMaxLoc(result)
+    (startX, startY) = maxLoc
+    (tH, tW) = template.shape[:2]
+    (endX, endY) = (startX + tW, startY + tH)
+    cv.rectangle(img, (startX, startY), (endX, endY), (0, 255, 0), 2)
+    cv.imshow("Clef Detection", img)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
+
+
+def detect_multi_scale():
+    img = cv.imread("media\\twinkle star.png")
+    template = cv.imread("template\\treble_clef.png", 0) # Your small clef crop
+    
+    if img is None or template is None:
+        print("Missing files!")
+        return
+
+    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    tH, tW = template.shape[:2]
+    found = None
+
+    # Loop over the scales of the image
+    # We test 30 different sizes from 100% down to 20%
+    for scale in np.linspace(0.1, 2, 100)[::-1]:
+        # Resize the image according to the scale
+        resized = cv.resize(gray, (int(gray.shape[1] * scale), int(gray.shape[0] * scale)))
+        ratio = gray.shape[1] / float(resized.shape[1])
+
+        # If the resized image is smaller than the template, break the loop
+        if resized.shape[0] < tH or resized.shape[1] < tW:
+            break
+
+        # Apply template matching
+        result = cv.matchTemplate(resized, template, cv.TM_CCOEFF_NORMED)
+        (_, maxVal, _, maxLoc) = cv.minMaxLoc(result)
+
+        # If we found a new maximum correlation value, update the bookkeeping variable
+        if found is None or maxVal > found[0]:
+            found = (maxVal, maxLoc, ratio)
+
+    # Unpack the "best" result and calculate coordinates
+    (maxVal, maxLoc, ratio) = found
+    (startX, startY) = (int(maxLoc[0] * ratio), int(maxLoc[1] * ratio))
+    (endX, endY) = (int((maxLoc[0] + tW) * ratio), int((maxLoc[1] + tH) * ratio))
+
+    # Draw the boundary on the original image
+    cv.rectangle(img, (0, startY), (img.shape[1], endY), (255, 0, 0), 2)
+    
+    cv.imshow("Scale-Invariant Result", img)
+    cv.waitKey(0)
         
     
     
 if __name__ == "__main__":
-    dynamic_readPic()
+    detect_clef("media\\twinkle star.png", "template\\treble_clef.png")
 
     #geminihelper()
