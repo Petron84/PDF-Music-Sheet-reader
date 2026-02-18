@@ -122,52 +122,64 @@ def detect_clef(img_path, template_path):
     cv.destroyAllWindows()
 
 
-
-def detect_multi_scale():
-    img = cv.imread("media\\twinkle star.png")
-    template = cv.imread("template\\treble_clef.png", 0) # Your small clef crop
-    
+# so yeah that was a single detection, what about detect all possible clefs?
+def detect_all_clefs(img_path, template_path):
+    img = cv.imread(img_path)
+    template = cv.imread(template_path, 0)
     if img is None or template is None:
-        print("Missing files!")
+        print("Files not found!")
         return
 
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     tH, tW = template.shape[:2]
-    found = None
-
-    # Loop over the scales of the image
-    # We test 30 different sizes from 100% down to 20%
-    for scale in np.linspace(0.1, 2, 100)[::-1]:
-        # Resize the image according to the scale
+    
+    # This list will hold all rectangles found across all scales
+    rects = []
+    
+    # 1. Multi-Scale Loop: Resize the image from 50% to 150% of its size
+    for scale in np.linspace(0.5, 1.5, 20):
         resized = cv.resize(gray, (int(gray.shape[1] * scale), int(gray.shape[0] * scale)))
         ratio = gray.shape[1] / float(resized.shape[1])
 
-        # If the resized image is smaller than the template, break the loop
         if resized.shape[0] < tH or resized.shape[1] < tW:
-            break
+            continue
 
-        # Apply template matching
+        # 2. Match Template
         result = cv.matchTemplate(resized, template, cv.TM_CCOEFF_NORMED)
-        (_, maxVal, _, maxLoc) = cv.minMaxLoc(result)
-
-        # If we found a new maximum correlation value, update the bookkeeping variable
-        if found is None or maxVal > found[0]:
-            found = (maxVal, maxLoc, ratio)
-
-    # Unpack the "best" result and calculate coordinates
-    (maxVal, maxLoc, ratio) = found
-    (startX, startY) = (int(maxLoc[0] * ratio), int(maxLoc[1] * ratio))
-    (endX, endY) = (int((maxLoc[0] + tW) * ratio), int((maxLoc[1] + tH) * ratio))
-
-    # Draw the boundary on the original image
-    cv.rectangle(img, (0, startY), (img.shape[1], endY), (255, 0, 0), 2)
-    
-    cv.imshow("Scale-Invariant Result", img)
-    cv.waitKey(0)
         
+        # 3. Find all matches above a threshold (e.g., 0.8)
+        threshold = 0.8
+        loc = np.where(result >= threshold)
+        
+        for pt in zip(*loc[::-1]):
+            # Convert coordinates back to original image scale
+            startX = int(pt[0] * ratio)
+            startY = int(pt[1] * ratio)
+            endX = int((pt[0] + tW) * ratio)
+            endY = int((pt[1] + tH) * ratio)
+            # Add to our list (groupRectangles needs [x, y, w, h])
+            rects.append([startX, startY, endX - startX, endY - startY])
+
+    # 4. Group Rectangles
+    # Since matchTemplate finds many hits for one object, we group them.
+    # groupThreshold=1 means it needs at least 2 overlapping boxes to keep one.
+    # eps=0.2 defines how close boxes must be to be grouped.
+    rects, weights = cv.groupRectangles(rects, groupThreshold=1, eps=0.2)
+
+    # 5. Draw the final results
+    for (x, y, w, h) in rects:
+        cv.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        # Optional: Draw the horizontal staff boundary lines we discussed earlier
+        cv.line(img, (0, y), (img.shape[1], y), (255, 0, 0), 1)
+        cv.line(img, (0, y + h), (img.shape[1], y + h), (0, 0, 255), 1)
+
+    cv.imshow("All Clefs Detected", img)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
     
     
 if __name__ == "__main__":
-    detect_clef("media\\twinkle star.png", "template\\treble_clef.png")
+    detect_all_clefs("media\\silentnight.png", "template\\treble_clef.png")
 
     #geminihelper()
