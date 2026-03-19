@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 from geminicode import geminihelper
+from statdicer import LineContour
 
 def readMyPic():
     img = cv.imread('media\\blanktreble.png')
@@ -30,5 +31,12 @@ def findFirstBlack(image,segment):
     
     
 if __name__ == "__main__":
-    readMyPic()
-    #geminihelper()
+    # imagepath ='media\\blanktreble.png'
+    #imagepath ='media\\silentnight.png'
+    imagepath ='media\\twinkle star.png'
+    #imagepath ="media\\basetemplate.png"
+    # firstContours(imagepath)
+    
+    lineContour = LineContour(imagepath)
+    lineContour.drawFirstLayerContours()
+    
