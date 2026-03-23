@@ -1,3 +1,5 @@
+from turtle import width
+
 import cv2 as cv
 from matplotlib.pyplot import gray
 import numpy as np
@@ -60,10 +62,11 @@ class LineContour():
         """This method will extract the lines from the image."""
         count = 1
         for line in self.lineContourIndeces:
-            print("Processing line contour at index: ", self.contours[line[1]])
+            # print("Processing line contour at index: ", self.contours[line[1]])
             x,y,w,h = cv.boundingRect(self.contours[line[1]])
             lineImage = self.image[y:y+h, x:x+w]
-            cv.imwrite(f'media\\lines\\trebble_{self.imagepath}_{count}.png', lineImage)
+            cv.imwrite(f'media\\lines\\{self.imagepath}_{count}.png', lineImage)
+            LineProcessor(f'media\\lines\\{self.imagepath}_{count}.png')
             count+=1
             # cv.imshow('Line Image', lineImage)
             # cv.waitKey(0)
@@ -75,52 +78,118 @@ class LineContour():
         print("The index count is ", len(self.lineContourIndeces))
         for line in self.lineContourIndeces:
             cv.drawContours(self.image, self.contours, line[1], (0,0,255),2)
-        cv.imshow('Contours', self.image)
+        # cv.imshow('Contours', self.image)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
+    
+    
+    
+    
+class LineProcessor():
+    def __init__(self, imagepath = 'media\\lines\\treble_twinkle star_5.png'):
+        self.lineImage = cv.imread(imagepath, cv.IMREAD_GRAYSCALE)
+        self.colorImage = cv.imread(imagepath) # this is the color version of the line image, we will use it to draw on it and visualize our results.
+        self.imagepath = imagepath[12:-4] # removing the .png part of
+        self.clef = self._identifyClef(self.lineImage)
+        self.imagepath = self.clef + "_" + self.imagepath
+        self.height, self.width = self.lineImage.shape
+        print('LineProcessor: ',self.imagepath)
+        self.clefsize, self.clefsignatures = self._identifyClefSignature(self.lineImage)
+        self._getNotes()
+    
+    def _identifyClef(self, lineImage):
+        # Implementation for identifying clef
+        # Hardcoding trebble celf for now, will implement the actual logic later.
+        return "treble"
+    
+    def _identifyClefSignature(self, lineImage):
+        # Implementation for getting the size of the clef signature and the other markings near the clef
+        # Hardcoding these, we will dynamically find them later.
+        return 33, 0
+    
+    def _getNotes(self):
+        # This method will actually go down the line
+        startingPoint = self.clefsize + self.clefsignatures
+        # For now we will drop a vertical red line 50 pixel from the left.
+        # red_color = (0,0,255)
+        # cv.line(self.lineImage, (startingPoint, 0), (startingPoint, self.height), red_color, 1)
+        ret, thresh_img = cv.threshold(self.lineImage, 220, 255, cv.THRESH_BINARY)
+        
+        # The y buckets are the pixel count from the shape function
+        y_buckets = [0] * self.height
+        
+        # Now we will go vertical line by vertical line and look for not 0 pixels
+        for y in range(self.height):
+            for x in range(startingPoint, self.width):
+                if thresh_img[y][x] != 255:
+                    y_buckets[y] += 1        
+        
+        # self.visulatize(y_buckets)
+        
+        # Let's find the max of the y_buckets
+        max_y = max(y_buckets) -10
+
+        # I'm going to say things can be 10 pixels off so subtracting 10 from the max.
+        # Now we will find the index of the maxes.
+        max_indices = []
+        for i in range(len(y_buckets)):
+            if y_buckets[i] >= max_y:
+                max_indices.append(i)
+                
+        # Now we're trying to find the start and end of each white space
+        white_spaces = []
+        for i in range(len(max_indices)-1):
+            if max_indices[i+1] - max_indices[i] > 1: # if the difference is more than 1, then there is a white space between them.
+                white_spaces.append((max_indices[i], max_indices[i+1]))
+        print("White spaces are: ", white_spaces)
+        
+        #now we will find the minimum size of the white spaces this will be width of our box
+        min_white_space = self.height
+        for space in white_spaces:
+            space_size = space[1] - space[0]
+            if space_size < min_white_space:
+                min_white_space = space_size
+        print("Minimum white space is: ", min_white_space)
+        
+        #Let me draw it so we see something.
+        # This draws into the white spaces. In Green
+        for space in white_spaces:
+            top_left_corner = (startingPoint, space[0]+1)
+            bottom_right_corner = (startingPoint+min_white_space, space[1]-1)
+            cv.rectangle(self.colorImage, top_left_corner, bottom_right_corner, (0,255,0), 1)
+            
+        # This draws on the lines in Blue
+        for line in range(len(max_indices)):
+            if line==0:
+                if max_indices[line]-max_indices[line-1]==1:
+                    continue
+            top_left_corner = (startingPoint, max_indices[line]-int(min_white_space/2))
+            bottom_right_corner = (startingPoint+min_white_space, max_indices[line]+int(min_white_space/2))
+            cv.rectangle(self.colorImage, top_left_corner, bottom_right_corner, (255,0,0), 1)
+                
+                       
+        cv.imshow('Stuff', self.colorImage)
         cv.waitKey(0)
         cv.destroyAllWindows()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-def firstContours(imagepath:str)->None:
-    
-
-    
-    # the outermost contour ends up being the rim of the image so we will need to go to its first child
-    currentindex = current[2]
-    current = hierarchy[0][currentindex]
-     
-    maxperimetercontour = contours[currentindex]  
-    maxperimeterindex = currentindex
-
-    while currentindex!=-1:
-        if cv.arcLength(contours[currentindex], True) > cv.arcLength(maxperimetercontour, True):
-            maxperimetercontour = contours[currentindex]
-            maxperimeterindex = currentindex
-        currentindex = hierarchy[0][currentindex][0]
-        current = hierarchy[0][currentindex]
+        cv.imshow('Segments', thresh_img)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
         
-    cv.drawContours(img, contours, maxperimeterindex, (0,0,255),2) 
-    
-    
-    
-    # I'm going to draw one more contour
-    print("next is: ", hierarchy[0][maxperimeterindex][0])
-
-
-
-
-    img_h , img_w, _ = img.shape
-    resized_im = cv.resize(img, (int(img_w/2), int(img_h/2)), interpolation=cv.INTER_LINEAR)
-    cv.imshow('Contours', resized_im)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
-    
+        
+        
+    def visulatize(self,y_buckets:list[int]):
+        """Designed to visualize the y_buckets in graphic format"""
+        if(len(y_buckets)==0):
+            print("No data to visualize")
+        elif(len(y_buckets)!=self.height):
+            print("Data length does not match image height. There is a problem with the data.")
+        
+        white_image = np.full((self.height, self.width-self.clefsize-self.clefsignatures, 3), 255, dtype=np.uint8)
+        
+        for y in range(len(y_buckets)):
+            for x in range(y_buckets[y]):
+                white_image[y][x] = (0,0,0) 
+        
+        cv.imshow('Visualization', white_image)
+        cv.waitKey(0)
+        cv.destroyAllWindows()

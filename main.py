@@ -32,8 +32,8 @@ def findFirstBlack(image,segment):
     
 if __name__ == "__main__":
     # imagepath ='media\\blanktreble.png'
-    imagepath ='media\\silentnight.png'
-    # imagepath ='media\\twinkle star.png'
+    # imagepath ='media\\silentnight.png'
+    imagepath ='media\\twinkle star.png'
     #imagepath ="media\\basetemplate.png"
     # firstContours(imagepath)
     
