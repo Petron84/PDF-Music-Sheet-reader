@@ -1,3 +1,4 @@
+from itertools import count
 from turtle import width
 
 import cv2 as cv
@@ -152,21 +153,27 @@ class LineProcessor():
         print("Minimum white space is: ", min_white_space)
         
         #Let me draw it so we see something.
+        # We will store top_left_corner and botton_right_corner as a list of tuples.
+        corners = []
+        
         # This draws into the white spaces. In Green
         for space in white_spaces:
             top_left_corner = (startingPoint, space[0]+1)
             bottom_right_corner = (startingPoint+min_white_space, space[1]-1)
+            corners.append((top_left_corner, bottom_right_corner))
             cv.rectangle(self.colorImage, top_left_corner, bottom_right_corner, (0,255,0), 1)
             
-        # This draws on the lines in Blue
-        for line in range(len(max_indices)):
-            if line==0:
-                if max_indices[line]-max_indices[line-1]==1:
-                    continue
-            top_left_corner = (startingPoint, max_indices[line]-int(min_white_space/2))
-            bottom_right_corner = (startingPoint+min_white_space, max_indices[line]+int(min_white_space/2))
-            cv.rectangle(self.colorImage, top_left_corner, bottom_right_corner, (255,0,0), 1)
+        # # This draws on the lines in Blue
+        # for line in range(len(max_indices)):
+        #     if line==0:
+        #         if max_indices[line]-max_indices[line-1]==1:
+        #             continue
+        #     top_left_corner = (startingPoint, max_indices[line]-int(min_white_space/2))
+        #     bottom_right_corner = (startingPoint+min_white_space, max_indices[line]+int(min_white_space/2))
+        #     corners.append((top_left_corner, bottom_right_corner))
+        #     cv.rectangle(self.colorImage, top_left_corner, bottom_right_corner, (255,0,0), 1)
                 
+        self._lookfornotes(corners, max_indices, thresh_img,min_white_space)
                        
         cv.imshow('Stuff', self.colorImage)
         cv.waitKey(0)
@@ -176,7 +183,53 @@ class LineProcessor():
         cv.destroyAllWindows()
         
         
+    def _lookfornotes(self, corners, blacklines, thresh_img, sliver_width):
+        """This method will look for notes and save an image of the sliver in a predefined way. 
+        The parameter blacklines is the list of y values of the black lines and are the black values we will ignore.
+        We will be using numpy methods."""
         
+        notecount = 0
+        startingX = self.clefsize + self.clefsignatures 
+        sliver = startingX # this is the x offset that slides down the line.
+        while sliver+sliver_width<= self.width:  
+            presence = []
+            # First we will look above the first black line which are less than the first value of blackline
+            # roi = thresh_img[y1:y2, x1:x2]
+            roi = thresh_img[0:blacklines[0], sliver:sliver+sliver_width]
+            if 0 in roi: # if there is a non white pixel, then there is a note in that sliver
+                presence.append(True)
+               
+            # This will traverse our boxes and look for notes in them.   
+            for topleft, bottomright in corners:
+                # topleft is  (33, 18) bottomright is  (40, 24)
+                roi = thresh_img[topleft[1]:bottomright[1], sliver:sliver+sliver_width]
+                if 0 in roi:
+                    presence.append(True)# if the sliver is within the box of the white space or the line
+            
+            # This will check after the last blackline
+            roi = thresh_img[blacklines[-1]+1:self.height, sliver:sliver+sliver_width]
+            if 0 in roi:
+                presence.append(True) # if there is a non white pixel, then there is a note in that sliver
+            
+            print("Presence is: ", presence)
+            if len(presence)>0:
+                notecount +=1
+                sliverimage = thresh_img[:, sliver:sliver+sliver_width]
+                cv.imwrite(f'media\\linenotes\\{self.imagepath}_{notecount}.png', sliverimage)
+                print(f'media\\linenotes\\{self.imagepath}_{notecount}.png')
+            
+            sliver += sliver_width # move the sliver to the right by the width of the white space.
+        
+        
+        
+        
+        
+                
+                
+                
+                
+                
+                
     def visulatize(self,y_buckets:list[int]):
         """Designed to visualize the y_buckets in graphic format"""
         if(len(y_buckets)==0):
