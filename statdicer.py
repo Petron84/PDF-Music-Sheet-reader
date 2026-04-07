@@ -66,8 +66,8 @@ class LineContour():
             # print("Processing line contour at index: ", self.contours[line[1]])
             x,y,w,h = cv.boundingRect(self.contours[line[1]])
             lineImage = self.image[y:y+h, x:x+w]
-            cv.imwrite(f'media\\lines\\{self.imagepath}_{count}.png', lineImage)
-            LineProcessor(f'media\\lines\\{self.imagepath}_{count}.png')
+            cv.imwrite(f'media\\lines\\{count}_{self.imagepath}.png', lineImage)
+            LineProcessor(f'media\\lines\\{count}_{self.imagepath}.png')
             count+=1
             # cv.imshow('Line Image', lineImage)
             # cv.waitKey(0)
@@ -215,8 +215,8 @@ class LineProcessor():
             if len(presence)>0:
                 notecount +=1
                 sliverimage = thresh_img[:, sliver:sliver+sliver_width]
-                cv.imwrite(f'media\\linenotes\\{self.imagepath}_{notecount}.png', sliverimage)
-                print(f'media\\linenotes\\{self.imagepath}_{notecount}.png')
+                cv.imwrite(f'media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
+                print(f'media\\linenotes\\{notecount}_{self.imagepath}.png')
             
             sliver += sliver_width # move the sliver to the right by the width of the white space.
         
