@@ -1,10 +1,11 @@
-from itertools import count
-from turtle import width
-
 import cv2 as cv
 from matplotlib.pyplot import gray
 import numpy as np
 
+import torch
+import torch.nn as nn
+import numpy as np
+import matplotlib.pyplot as plt
 
 class LineContour():
     def __init__(self, imagepath = 'media\\twinkle star.png'):
@@ -163,6 +164,8 @@ class LineProcessor():
             corners.append((top_left_corner, bottom_right_corner))
             cv.rectangle(self.colorImage, top_left_corner, bottom_right_corner, (0,255,0), 1)
             
+        # self.visulatize(y_buckets)
+            
         # # This draws on the lines in Blue
         # for line in range(len(max_indices)):
         #     if line==0:
@@ -178,15 +181,57 @@ class LineProcessor():
             self._breakintoSingleLines(max_indices, thresh_img)
         # self._lookfornotes(corners, max_indices, thresh_img,min_white_space)
         else:
-            self.individualLines.append(thresh_img) # if there is only one line, then we will just add the whole line image to our individual lines collection.
+            self.individualLines.append(thresh_img[:, self.clefsize+self.clefsignatures:]) # if there is only one line, then we will just add the whole line image to our individual lines collection.
             
         # print ("Number of individual lines is: ", len(self.individualLines))
         for line in self.individualLines:
             cv.imshow('Line Image', line)
             cv.waitKey(0)
             cv.destroyAllWindows()
-            self._lookfornotes(corners, max_indices, line , 10)
-            
+            self._convolutionExperiment(line)
+            # self._horizontalAnalysis(line)
+            # self._lookfornotes(corners, max_indices, line , 10))
+    
+    def _convolutionExperiment(self, line):
+        """This method will perform a convolution experiment on the line image."""
+        pass
+
+
+    def _horizontalAnalysis(self, line):
+        """We will look at x frequency and then look at what the image is"""        
+        
+        (max_y, max_x) = line.shape
+        print("Horizontal analysis, max_y: ", max_y, "max_x: ", max_x)
+        x_buckets = [0] * max_x
+        
+        # Now we will go horizontal line by horizontal line and look for not 0 pixels
+        for x in range(max_x):
+            for y in range(max_y):
+                # print(f"line[{y}][{x}] = {line[y][x]}")
+                if line[y][x] != 255:
+                    x_buckets[x] += 1        
+        
+        # Let's find the max of the x_buckets
+        # I'm going to say things can be 10 pixels off so subtracting 10 from the max.
+        max_x = max(x_buckets) -10
+        
+        # Now we will find the index of the maxes.
+        max_indices = []
+        for i in range(len(x_buckets)):
+            if x_buckets[i] >= max_x:
+                max_indices.append(i)
+        
+        print("Max indeces are: ", max_indices)
+        white_image = np.full((self.height, self.width-self.clefsize-self.clefsignatures, 3), 255, dtype=np.uint8)
+        
+        for x in range(len(x_buckets)):
+            for y in range(x_buckets[x]):
+                white_image[y][x] = (0,0,0) 
+        
+        cv.imshow('Visualization', white_image)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+        
     def _breakintoSingleLines(self, max_indices, thresh_img):
         """"
         This method is designed to break the line into single lines, including the possibility of more than two lines,
