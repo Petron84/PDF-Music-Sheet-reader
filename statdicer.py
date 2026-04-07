@@ -96,7 +96,8 @@ class LineProcessor():
         self.height, self.width = self.lineImage.shape
         print('LineProcessor: ',self.imagepath)
         self.clefsize, self.clefsignatures = self._identifyClefSignature(self.lineImage)
-        self._getNotes()
+        self.individualLines = []
+        self._splitLines()
     
     def _identifyClef(self, lineImage):
         # Implementation for identifying clef
@@ -106,16 +107,15 @@ class LineProcessor():
     def _identifyClefSignature(self, lineImage):
         # Implementation for getting the size of the clef signature and the other markings near the clef
         # Hardcoding these, we will dynamically find them later.
-        return 33, 0
+        return 33, 0 # clefsize, clefsignatures
     
-    def _getNotes(self):
-        # This method will actually go down the line
-        startingPoint = self.clefsize + self.clefsignatures
-        # For now we will drop a vertical red line 50 pixel from the left.
-        # red_color = (0,0,255)
-        # cv.line(self.lineImage, (startingPoint, 0), (startingPoint, self.height), red_color, 1)
+    def _splitLines(self):
+        """This method will analyze our image, assess if it needs to be split up and then adds it to self.indivisualLines for processing
+        """
         ret, thresh_img = cv.threshold(self.lineImage, 220, 255, cv.THRESH_BINARY)
-        
+        startingPoint = self.clefsize + self.clefsignatures 
+        #Because of when this method is called, we have to begin at the very beginning
+  
         # The y buckets are the pixel count from the shape function
         y_buckets = [0] * self.height
         
@@ -142,7 +142,7 @@ class LineProcessor():
         for i in range(len(max_indices)-1):
             if max_indices[i+1] - max_indices[i] > 1: # if the difference is more than 1, then there is a white space between them.
                 white_spaces.append((max_indices[i], max_indices[i+1]))
-        print("White spaces are: ", white_spaces)
+        # print("White spaces are: ", white_spaces)
         
         #now we will find the minimum size of the white spaces this will be width of our box
         min_white_space = self.height
@@ -150,7 +150,7 @@ class LineProcessor():
             space_size = space[1] - space[0]
             if space_size < min_white_space:
                 min_white_space = space_size
-        print("Minimum white space is: ", min_white_space)
+        # print("Minimum white space is: ", min_white_space)
         
         #Let me draw it so we see something.
         # We will store top_left_corner and botton_right_corner as a list of tuples.
@@ -172,19 +172,100 @@ class LineProcessor():
         #     bottom_right_corner = (startingPoint+min_white_space, max_indices[line]+int(min_white_space/2))
         #     corners.append((top_left_corner, bottom_right_corner))
         #     cv.rectangle(self.colorImage, top_left_corner, bottom_right_corner, (255,0,0), 1)
-                
-        self._lookfornotes(corners, max_indices, thresh_img,min_white_space)
-                       
-        cv.imshow('Stuff', self.colorImage)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
-        cv.imshow('Segments', thresh_img)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        
+        #print(f"The decision for len(corners)/4 is: {len(corners)/4}")        
+        if len(corners)/4 > 1: # there are 4 boxes if there is a single line. If there are more than that, then they must be split
+            self._breakintoSingleLines(max_indices, thresh_img)
+        # self._lookfornotes(corners, max_indices, thresh_img,min_white_space)
+        else:
+            self.individualLines.append(thresh_img) # if there is only one line, then we will just add the whole line image to our individual lines collection.
+            
+        # print ("Number of individual lines is: ", len(self.individualLines))
+        for line in self.individualLines:
+            cv.imshow('Line Image', line)
+            cv.waitKey(0)
+            cv.destroyAllWindows()
+            self._lookfornotes(corners, max_indices, line , 10)
+            
+    def _breakintoSingleLines(self, max_indices, thresh_img):
+        """"
+        This method is designed to break the line into single lines, including the possibility of more than two lines,
+        ASSUMING that splitting halfway between lines is a good strategy.
+        """
+        averageDistance = 0
+        
+        for i in range(len(max_indices)-1):
+            distance = max_indices[i+1]-max_indices[i]
+            averageDistance+=distance
+            
+        averageDistance = averageDistance/(len(max_indices)-1)
+        
+        #will save these in a list of tuples, (distance, (first_y, second_y))
+        distances = []
+        for i in range(len(max_indices)-1):
+            distance = max_indices[i+1]-max_indices[i]
+            if distance>averageDistance:
+                distances.append(int((max_indices[i] + max_indices[i+1]) / 2))
+        
+        lastDistance = 0
+
+        for distance in distances:
+            lineImage = thresh_img[lastDistance:distance, self.clefsize+self.clefsignatures:]
+            self.individualLines.append(lineImage)
+            lastDistance = distance
+            # cv.imshow('Line Image', lineImage)
+            # cv.waitKey(0)
+            # cv.destroyAllWindows()
+        lineImage = thresh_img[lastDistance:self.height, self.clefsize+self.clefsignatures:]
+        self.individualLines.append(lineImage)
+       
+            
+            
+            
+    def _lookfornotes_original(self, corners, blacklines, thresh_img, sliver_width):
+        """This mehtod is now deprecated
+        
+        This method will look for notes and save an image of the sliver in a predefined way. 
+        The parameter blacklines is the list of y values of the black lines and are the black values we will ignore.
+        We will be using numpy methods."""
+        
+        notecount = 0
+        startingX = self.clefsize + self.clefsignatures 
+        sliver = startingX # this is the x offset that slides down the line.
+        while sliver+sliver_width<= self.width:  
+            presence = []
+            # First we will look above the first black line which are less than the first value of blackline
+            # roi = thresh_img[y1:y2, x1:x2]
+            roi = thresh_img[0:blacklines[0], sliver:sliver+sliver_width]
+            if 0 in roi: # if there is a non white pixel, then there is a note in that sliver
+                presence.append(True)
+               
+            # This will traverse our boxes and look for notes in them.   
+            for topleft, bottomright in corners:
+                # topleft is  (33, 18) bottomright is  (40, 24)
+                roi = thresh_img[topleft[1]:bottomright[1], sliver:sliver+sliver_width]
+                if 0 in roi:
+                    presence.append(True)# if the sliver is within the box of the white space or the line
+            
+            # This will check after the last blackline
+            roi = thresh_img[blacklines[-1]+1:self.height, sliver:sliver+sliver_width]
+            if 0 in roi:
+                presence.append(True) # if there is a non white pixel, then there is a note in that sliver
+            
+            print("Presence is: ", presence)
+            if len(presence)>0:
+                notecount +=1
+                sliverimage = thresh_img[:, sliver:sliver+sliver_width]
+                cv.imwrite(f'media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
+                print(f'media\\linenotes\\{notecount}_{self.imagepath}.png')
+            
+            sliver += sliver_width # move the sliver to the right by the width of the white space.
+            
         
         
     def _lookfornotes(self, corners, blacklines, thresh_img, sliver_width):
-        """This method will look for notes and save an image of the sliver in a predefined way. 
+        """"
+        This method will look for notes and save an image of the sliver in a predefined way. 
         The parameter blacklines is the list of y values of the black lines and are the black values we will ignore.
         We will be using numpy methods."""
         
