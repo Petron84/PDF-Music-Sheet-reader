@@ -201,8 +201,98 @@ class LineProcessor():
         """This method will perform a line separation convolution on the line image."""
         clefofline = self._identifyClef(line)
         clefsize, clefsignatures = self._identifyClefSignature(line)
-          
-
+        
+        # This is the kernel for the vertical character
+        verKernel = np.array([ # It's called Sobel Kernel
+            [-1,0,1],
+            [-2,0,2],
+            [-1,0,1]], dtype=np.float32)
+        
+        beforeimg = line.astype(np.float32) # Convolution function requires float32 input
+        vertimg = cv.filter2D(beforeimg, -1, verKernel) # Performing the convolution. The -1 means the output image will have the same depth as the input image.
+        vertimg = np.abs(vertimg).astype(np.uint8) # Taking the absolute value and converting back to uint8 for visualization
+        cv.imshow('After Vertical', vertimg)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+        
+        opimage = 255 - vertimg # this is the image after inverting the colors. The idea is that the lines will be detected by the kernels and will be white in vertimg, so when we invert it, they will be black and the notes will be white.
+        x_ranges = self._getRanges(opimage, clefsize+clefsignatures) # this will get the x ranges of the lines. We will use these to split the line into individual lines.
+        notecount = 0
+        for (start, end) in x_ranges:
+            lineImage = line[:, start:end]
+            notecount +=1
+            cv.imwrite(f'media\\linenotes\\{clefofline}_{notecount}_{self.imagepath}.png', lineImage)
+            print(f'media\\linenotes\\{clefofline}_{notecount}_{self.imagepath}.png')
+        # # I tried other kernels and I found that they don't really work. So we will work with the veritcal filter only.
+        # posKernel = np.array([ 
+        #     [ 0,  1, 2],
+        #     [-1,  0, 1],
+        #     [-2, -1, 0]], dtype=np.float32)
+        # posimg = cv.filter2D(beforeimg, -1, posKernel) # Performing the convolution. The -1 means the output image will have the same depth as the input image.
+        # posimg = np.abs(posimg).astype(np.uint8) # Taking the absolute value and converting back to uint8 for visualization
+        # cv.imshow('After Positive', posimg) 
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
+        
+        # negKernel = np.array([ 
+        #     [ 2,  1, 0],
+        #     [ 1,  0, -1],
+        #     [ 0, -1, -2]], dtype=np.float32)
+        # negimg = cv.filter2D(beforeimg, -1, negKernel) # Performing the convolution. The -1 means the output image will have the same depth as the input image.
+        # negimg = np.abs(negimg).astype(np.uint8) # Taking the absolute value and converting back to uint8 for visualization
+        # cv.imshow('After Negative', negimg) 
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
+        
+        # horKernel = np.array([ 
+        #     [ -1, -2, -1],
+        #     [  0,  0,  0],
+        #     [  1,  2,  1]], dtype=np.float32)
+        # horimg = cv.filter2D(beforeimg, -1, horKernel) # Performing the convolution. The -1 means the output image will have the same depth as the input image.
+        # horimg = np.abs(horimg).astype(np.uint8)
+        # cv.imshow('After Horizontal', horimg) 
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
+        
+        # afterimage = beforeimg + posimg + negimg + horimg # this is the image after subtracting the lines. The idea is that the lines will be detected by the kernels and subtracted from the original image, leaving only the notes and other markings.
+        # afterimage = np.clip(afterimage, 0, 255).astype(np.uint8) # Clipping the values to be between 0 and 255 and converting back to uint8 for visualization
+        # cv.imshow('Subtraction', afterimage) 
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
+        
+    def _getRanges(self, opimage, startingPoint):
+        # Implementation for getting x ranges
+        x_buckets = [0] * (self.width - startingPoint)
+        for x in range(startingPoint, self.width):
+            for y in range(self.height):
+                if opimage[y][x] != 255:
+                    x_buckets[x-startingPoint] += 1 
+                    
+        # lets draw them
+        white_image = np.full((self.height, self.width, 3), 255, dtype=np.uint8)
+        for x in range(len(x_buckets)):
+            for y in range(x_buckets[x]):
+                white_image[y][x+startingPoint] = (0,0,0)
+        
+        cv.imshow('Squished Image', white_image)
+        cv.waitKey(0)   
+        cv.destroyAllWindows()
+        
+        ranges = []
+        x =0
+        while x<len(x_buckets):
+            if x_buckets[x]>0: # So this means there was a black pixel in the column
+                print("here")
+                start = x
+                while start<len(x_buckets) and x_buckets[start]>0:
+                    start+=1
+                end = start +2
+                ranges.append((x+startingPoint-2, end+startingPoint))
+                print(f"Found a note from {x+startingPoint-2} to {end+startingPoint}")
+                x = end
+            else:
+                x+=1
+        return ranges
 
     def _horizontalAnalysis(self, line):
         """We will look at x frequency and then look at what the image is"""        
@@ -229,7 +319,7 @@ class LineProcessor():
                 max_indices.append(i)
         
         print("Max indeces are: ", max_indices)
-        white_image = np.full((self.height, self.width-self.clefsize-self.clefsignatures, 3), 255, dtype=np.uint8)
+        white_image = np.full((self.height, self.width, 3), 255, dtype=np.uint8)
         
         for x in range(len(x_buckets)):
             for y in range(x_buckets[x]):
@@ -238,6 +328,8 @@ class LineProcessor():
         cv.imshow('Visualization', white_image)
         cv.waitKey(0)
         cv.destroyAllWindows()
+        
+        return max_indices
         
     def _breakintoSingleLines(self, max_indices, thresh_img):
         """"
