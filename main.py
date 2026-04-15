@@ -7,7 +7,6 @@ from statdicer import LineContour
 
 def readMyPic():
     img = cv.imread('media\\blanktreble.png')
-    
     # img.shape returns a tuple: (Height, Width, Channels)
     height, width, channels = img.shape
     cv.imshow("Displayed Image", img)
@@ -33,7 +32,7 @@ def findFirstBlack(image,segment):
 if __name__ == "__main__":
     # imagepath ='media\\blanktreble.png'
     imagepath ='media\\silentnight.png'
-    #imagepath ='media\\twinkle star.png'
+    # imagepath ='media\\twinkle star.png'
     #imagepath ="media\\basetemplate.png"
     # firstContours(imagepath)
     

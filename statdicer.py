@@ -92,11 +92,11 @@ class LineProcessor():
         self.lineImage = cv.imread(imagepath, cv.IMREAD_GRAYSCALE)
         self.colorImage = cv.imread(imagepath) # this is the color version of the line image, we will use it to draw on it and visualize our results.
         self.imagepath = imagepath[12:-4] # removing the .png part of
-        self.clef = self._identifyClef(self.lineImage)
-        self.imagepath = self.clef + "_" + self.imagepath
+        #self.clef = self._identifyClef(self.lineImage)
+        #self.imagepath = self.clef + "_" + self.imagepath
         self.height, self.width = self.lineImage.shape
         print('LineProcessor: ',self.imagepath)
-        self.clefsize, self.clefsignatures = self._identifyClefSignature(self.lineImage)
+        #self.clefsize, self.clefsignatures = self._identifyClefSignature(self.lineImage)
         self.individualLines = []
         self._splitLines()
     
@@ -114,8 +114,9 @@ class LineProcessor():
         """This method will analyze our image, assess if it needs to be split up and then adds it to self.indivisualLines for processing
         """
         ret, thresh_img = cv.threshold(self.lineImage, 220, 255, cv.THRESH_BINARY)
-        startingPoint = self.clefsize + self.clefsignatures 
+        #startingPoint = self.clefsize + self.clefsignatures 
         #Because of when this method is called, we have to begin at the very beginning
+        startingPoint = 0
   
         # The y buckets are the pixel count from the shape function
         y_buckets = [0] * self.height
@@ -126,6 +127,9 @@ class LineProcessor():
                 if thresh_img[y][x] != 255:
                     y_buckets[y] += 1        
         
+        cv.imshow(self.imagepath, thresh_img)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
         # self.visulatize(y_buckets)
         
         # Let's find the max of the y_buckets
@@ -162,7 +166,7 @@ class LineProcessor():
             top_left_corner = (startingPoint, space[0]+1)
             bottom_right_corner = (startingPoint+min_white_space, space[1]-1)
             corners.append((top_left_corner, bottom_right_corner))
-            cv.rectangle(self.colorImage, top_left_corner, bottom_right_corner, (0,255,0), 1)
+            #cv.rectangle(self.colorImage, top_left_corner, bottom_right_corner, (0,255,0), 1)
             
         # self.visulatize(y_buckets)
             
@@ -179,22 +183,25 @@ class LineProcessor():
         #print(f"The decision for len(corners)/4 is: {len(corners)/4}")        
         if len(corners)/4 > 1: # there are 4 boxes if there is a single line. If there are more than that, then they must be split
             self._breakintoSingleLines(max_indices, thresh_img)
-        # self._lookfornotes(corners, max_indices, thresh_img,min_white_space)
         else:
-            self.individualLines.append(thresh_img[:, self.clefsize+self.clefsignatures:]) # if there is only one line, then we will just add the whole line image to our individual lines collection.
+            self.individualLines.append(thresh_img) # if there is only one line, then we will just add the whole line image to our individual lines collection.
             
         # print ("Number of individual lines is: ", len(self.individualLines))
         for line in self.individualLines:
             cv.imshow('Line Image', line)
             cv.waitKey(0)
             cv.destroyAllWindows()
-            self._convolutionExperiment(line)
+            self._lineSeparatorConvolution(line)
+            
             # self._horizontalAnalysis(line)
-            # self._lookfornotes(corners, max_indices, line , 10))
+            # self._lookfornotes(corners, max_indices, line , 10)
+            
     
-    def _convolutionExperiment(self, line):
-        """This method will perform a convolution experiment on the line image."""
-        pass
+    def _lineSeparatorConvolution(self, line):
+        """This method will perform a line separation convolution on the line image."""
+        clefofline = self._identifyClef(line)
+        clefsize, clefsignatures = self._identifyClefSignature(line)
+          
 
 
     def _horizontalAnalysis(self, line):
@@ -255,13 +262,13 @@ class LineProcessor():
         lastDistance = 0
 
         for distance in distances:
-            lineImage = thresh_img[lastDistance:distance, self.clefsize+self.clefsignatures:]
+            lineImage = thresh_img[lastDistance:distance, :]
             self.individualLines.append(lineImage)
             lastDistance = distance
             # cv.imshow('Line Image', lineImage)
             # cv.waitKey(0)
             # cv.destroyAllWindows()
-        lineImage = thresh_img[lastDistance:self.height, self.clefsize+self.clefsignatures:]
+        lineImage = thresh_img[lastDistance:self.height,:]
         self.individualLines.append(lineImage)
        
             
