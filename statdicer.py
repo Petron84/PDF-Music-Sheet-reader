@@ -262,9 +262,13 @@ class LineProcessor():
         
     def _getRanges(self, opimage, startingPoint):
         # Implementation for getting x ranges
-        x_buckets = [0] * (self.width - startingPoint)
-        for x in range(startingPoint, self.width):
-            for y in range(self.height):
+        h, w = opimage.shape
+        x_buckets = [0] * (w - startingPoint)
+        #print("len of x_buckets: ", len(x_buckets))
+        for x in range(startingPoint, w):
+            #print("height: ", h, "width: ", w)
+            for y in range(h):
+                #print("y: ", y, "x: ", x, )
                 if opimage[y][x] != 255:
                     x_buckets[x-startingPoint] += 1 
                     
