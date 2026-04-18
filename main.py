@@ -4,7 +4,7 @@ import os
 import numpy as np
 from geminicode import geminihelper
 from statdicer import LineContour
-import garbagemodel
+import garbagemodeltruthbuilder
 
 def readMyPic():
     img = cv.imread('media\\blanktreble.png')
@@ -40,5 +40,5 @@ if __name__ == "__main__":
     # imagepath = "media\\pdf2png(3).png"
     # lineContour = LineContour(imagepath)
     # lineContour.drawFirstLayerContours()
-    garbagemodel.setupgame()
+    garbagemodeltruthbuilder.setupgame()
     
