@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 class LineContour():
     def __init__(self, imagepath = 'media\\twinkle star.png'):
         self.image =cv.imread(imagepath)
+        print("Original image shape: ", self.image.shape)
+        self.image = self._resizetheimage(self.image)
+        print("Resized image shape: ", self.image.shape)
         self.imagepath = imagepath[6:-4] # removing the .png part of the path
         gray = cv.cvtColor(self.image, cv.COLOR_BGR2GRAY)
         ret, thresh = cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
@@ -57,6 +60,7 @@ class LineContour():
             current = self.hierarchy[0][currentindex]
         
         #when it exits that loops, I will have visited all contours in that layer and collected them.
+        print("Line contour indeces are: ", lineContourIndeces)
         return lineContourIndeces
 
 
@@ -83,6 +87,20 @@ class LineContour():
         # cv.imshow('Contours', self.image)
         # cv.waitKey(0)
         # cv.destroyAllWindows()
+        
+    def _resizetheimage(self, image):
+        """This method will resize the image to a standard size. This is important because we want to have a standard size for our line images so that we can process them in a consistent way."""
+        # I will resize the image to have a width of 1000 pixels and a height that maintains the aspect ratio.
+        height, width, channels = image.shape
+        if height<= 1338 or width<= 1103:
+            return image
+        
+        resized_image = image
+        while height>= 1338 or width>= 1103:
+            resized_image = cv.resize(resized_image, (int(width*.5), int(height*.5)))
+            height, width, channels = resized_image.shape
+ 
+        return resized_image
     
     
     

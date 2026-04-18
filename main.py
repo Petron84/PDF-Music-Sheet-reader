@@ -4,6 +4,7 @@ import os
 import numpy as np
 from geminicode import geminihelper
 from statdicer import LineContour
+import garbagemodel
 
 def readMyPic():
     img = cv.imread('media\\blanktreble.png')
@@ -31,11 +32,13 @@ def findFirstBlack(image,segment):
     
 if __name__ == "__main__":
     # imagepath ='media\\blanktreble.png'
-    imagepath ='media\\silentnight.png'
+    # imagepath ='media\\silentnight.png'
     # imagepath ='media\\twinkle star.png'
     #imagepath ="media\\basetemplate.png"
     # firstContours(imagepath)
     # imagepath = "media\\pdf2png(2).png"
+    imagepath = "media\\pdf2png(3).png"
     lineContour = LineContour(imagepath)
     lineContour.drawFirstLayerContours()
+    #garbagemodel.setupgame()
     
