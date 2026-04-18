@@ -37,8 +37,8 @@ if __name__ == "__main__":
     #imagepath ="media\\basetemplate.png"
     # firstContours(imagepath)
     # imagepath = "media\\pdf2png(2).png"
-    imagepath = "media\\pdf2png(3).png"
-    lineContour = LineContour(imagepath)
-    lineContour.drawFirstLayerContours()
-    #garbagemodel.setupgame()
+    # imagepath = "media\\pdf2png(3).png"
+    # lineContour = LineContour(imagepath)
+    # lineContour.drawFirstLayerContours()
+    garbagemodel.setupgame()
     

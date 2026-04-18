@@ -16,6 +16,8 @@ def setupgame():
         print("Folder not found!")
         files = os.listdir('media\\garbagefilterdataset')
         print(len(files))
+        
+    getStats(files)
     
 def startgame(files):
     lastone = open('media\\groundtruth\\lastfile.txt', 'r').read().strip()
@@ -26,6 +28,8 @@ def startgame(files):
             fileindex += 1
     
     for i in range(fileindex, len(files)):
+        if i == len(files)-1:
+            continue
         file = files[i]
         img = cv.imread('media\\garbagefilterdataset\\' + file)
         cv.imshow("Displayed Image", img)
@@ -44,4 +48,42 @@ def logintotext(file, key):
     
     with open('media\\groundtruth\\lastfile.txt', 'w') as f:
         f.write(file)
+    
+    
+def getStats(files):
+
+    with open('garbagelog.txt', 'r') as f:
+        lines = f.readlines() 
+    garbage_count = 0
+    not_garbage_count = 0
+    
+    nongarbage = []
+   
+    for line in lines:
+        if line.strip():  # Check if the line is not empty
+            im, label = line.strip().split(', ')
+            if label == '1':
+                not_garbage_count += 1
+                nongarbage.append(im)
+            elif label == '0':
+                garbage_count += 1
+    
+    print(f"Garbage: {garbage_count}")
+    print(f"Not Garbage: {not_garbage_count}")
+    
+    allShapes = []
+    for im in nongarbage:
+        img = cv.imread('media\\garbagefilterdataset\\' + im)
+        allShapes.append(img.shape)
+        
+    max_height = max(shape[0] for shape in allShapes)
+    max_width = max(shape[1] for shape in allShapes)
+        
+    with open('garbagestats.txt', 'w') as f:
+        f.write(f"Garbage: {garbage_count}\n")
+        f.write(f"Not Garbage: {not_garbage_count}\n")
+        f.write(f"Max height of non-garbage images: {max_height}\n")
+        f.write(f"Max width of non-garbage images: {max_width}\n")
+        
+        
     
