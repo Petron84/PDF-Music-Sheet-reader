@@ -92,7 +92,7 @@ class LineProcessor():
         self.lineImage = cv.imread(imagepath, cv.IMREAD_GRAYSCALE)
         self.colorImage = cv.imread(imagepath) # this is the color version of the line image, we will use it to draw on it and visualize our results.
         self.imagepath = imagepath[12:-4] # removing the .png part of
-        self._linecountsubstring = self.imagepath[:self.imagepath.index('_')+1]
+        self._linecountsubstring = self.imagepath[:self.imagepath.index('_')]
         self._namesubstring = self.imagepath[self.imagepath.index('_')+1:]
         #self.clef = self._identifyClef(self.lineImage)
         #self.imagepath = self.clef + "_" + self.imagepath
