@@ -92,12 +92,15 @@ class LineProcessor():
         self.lineImage = cv.imread(imagepath, cv.IMREAD_GRAYSCALE)
         self.colorImage = cv.imread(imagepath) # this is the color version of the line image, we will use it to draw on it and visualize our results.
         self.imagepath = imagepath[12:-4] # removing the .png part of
+        self._linecountsubstring = self.imagepath[:self.imagepath.index('_')+1]
+        self._namesubstring = self.imagepath[self.imagepath.index('_')+1:]
         #self.clef = self._identifyClef(self.lineImage)
         #self.imagepath = self.clef + "_" + self.imagepath
         self.height, self.width = self.lineImage.shape
         print('LineProcessor: ',self.imagepath)
         #self.clefsize, self.clefsignatures = self._identifyClefSignature(self.lineImage)
         self.individualLines = []
+        self._countclefs = 0
         self._splitLines()
     
     def _identifyClef(self, lineImage):
@@ -127,9 +130,9 @@ class LineProcessor():
                 if thresh_img[y][x] != 255:
                     y_buckets[y] += 1        
         
-        cv.imshow(self.imagepath, thresh_img)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        # cv.imshow(self.imagepath, thresh_img)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
         # self.visulatize(y_buckets)
         
         # Let's find the max of the y_buckets
@@ -188,9 +191,9 @@ class LineProcessor():
             
         # print ("Number of individual lines is: ", len(self.individualLines))
         for line in self.individualLines:
-            cv.imshow('Line Image', line)
-            cv.waitKey(0)
-            cv.destroyAllWindows()
+            # cv.imshow('Line Image', line)
+            # cv.waitKey(0)
+            # cv.destroyAllWindows()
             self._lineSeparatorConvolution(line)
             
             # self._horizontalAnalysis(line)
@@ -211,9 +214,9 @@ class LineProcessor():
         beforeimg = line.astype(np.float32) # Convolution function requires float32 input
         vertimg = cv.filter2D(beforeimg, -1, verKernel) # Performing the convolution. The -1 means the output image will have the same depth as the input image.
         vertimg = np.abs(vertimg).astype(np.uint8) # Taking the absolute value and converting back to uint8 for visualization
-        cv.imshow('After Vertical', vertimg)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        # cv.imshow('After Vertical', vertimg)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
         
         opimage = 255 - vertimg # this is the image after inverting the colors. The idea is that the lines will be detected by the kernels and will be white in vertimg, so when we invert it, they will be black and the notes will be white.
         x_ranges = self._getRanges(opimage, clefsize+clefsignatures) # this will get the x ranges of the lines. We will use these to split the line into individual lines.
@@ -221,8 +224,9 @@ class LineProcessor():
         for (start, end) in x_ranges:
             lineImage = line[:, start:end]
             notecount +=1
-            cv.imwrite(f'media\\linenotes\\{clefofline}_{notecount}_{self.imagepath}.png', lineImage)
-            print(f'media\\linenotes\\{clefofline}_{notecount}_{self.imagepath}.png')
+            self._countclefs+=1
+            cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
+            print(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
         # # I tried other kernels and I found that they don't really work. So we will work with the veritcal filter only.
         # posKernel = np.array([ 
         #     [ 0,  1, 2],
@@ -278,21 +282,20 @@ class LineProcessor():
             for y in range(x_buckets[x]):
                 white_image[y][x+startingPoint] = (0,0,0)
         
-        cv.imshow('Squished Image', white_image)
-        cv.waitKey(0)   
-        cv.destroyAllWindows()
+        # cv.imshow('Squished Image', white_image)
+        # cv.waitKey(0)   
+        # cv.destroyAllWindows()
         
         ranges = []
         x =0
         while x<len(x_buckets):
             if x_buckets[x]>0: # So this means there was a black pixel in the column
-                print("here")
                 start = x
                 while start<len(x_buckets) and x_buckets[start]>0:
                     start+=1
                 end = start +2
                 ranges.append((x+startingPoint-2, end+startingPoint))
-                print(f"Found a note from {x+startingPoint-2} to {end+startingPoint}")
+                # print(f"Found a note from {x+startingPoint-2} to {end+startingPoint}")
                 x = end
             else:
                 x+=1
@@ -341,7 +344,6 @@ class LineProcessor():
         ASSUMING that splitting halfway between lines is a good strategy.
         """
         averageDistance = 0
-        
         for i in range(len(max_indices)-1):
             distance = max_indices[i+1]-max_indices[i]
             averageDistance+=distance
