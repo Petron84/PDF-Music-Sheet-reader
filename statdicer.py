@@ -1,14 +1,16 @@
+import os
+
 import cv2 as cv
 from matplotlib.pyplot import gray
 import numpy as np
-
 import torch
 import torch.nn as nn
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 class LineContour():
     def __init__(self, imagepath = 'media\\twinkle star.png'):
+        print(imagepath)
         self.image =cv.imread(imagepath)
         print("Original image shape: ", self.image.shape)
         self.image = self._resizetheimage(self.image)
@@ -72,6 +74,7 @@ class LineContour():
             x,y,w,h = cv.boundingRect(self.contours[line[1]])
             lineImage = self.image[y:y+h, x:x+w]
             cv.imwrite(f'media\\lines\\{count}_{self.imagepath}.png', lineImage)
+            print(os.path.exists(f'media\\lines\\{count}_{self.imagepath}.png'))
             LineProcessor(f'media\\lines\\{count}_{self.imagepath}.png')
             count+=1
             # cv.imshow('Line Image', lineImage)
@@ -106,7 +109,7 @@ class LineContour():
     
     
 class LineProcessor():
-    def __init__(self, imagepath = 'media\\lines\\treble_twinkle star_5.png'):
+    def __init__(self, imagepath = 'PDF-Music-Sheet-reader\\media\\lines\\treble_twinkle star_5.png'):
         self.lineImage = cv.imread(imagepath, cv.IMREAD_GRAYSCALE)
         self.colorImage = cv.imread(imagepath) # this is the color version of the line image, we will use it to draw on it and visualize our results.
         self.imagepath = imagepath[12:-4] # removing the .png part of
@@ -243,8 +246,8 @@ class LineProcessor():
             lineImage = line[:, start:end]
             notecount +=1
             self._countclefs+=1
-            cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
-            print(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
+            cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
+            print(f'PDF-Music-Sheet-reader\\media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
         # # I tried other kernels and I found that they don't really work. So we will work with the veritcal filter only.
         # posKernel = np.array([ 
         #     [ 0,  1, 2],
@@ -424,8 +427,8 @@ class LineProcessor():
             if len(presence)>0:
                 notecount +=1
                 sliverimage = thresh_img[:, sliver:sliver+sliver_width]
-                cv.imwrite(f'media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
-                print(f'media\\linenotes\\{notecount}_{self.imagepath}.png')
+                cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
+                print(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png')
             
             sliver += sliver_width # move the sliver to the right by the width of the white space.
             
@@ -464,7 +467,7 @@ class LineProcessor():
             if len(presence)>0:
                 notecount +=1
                 sliverimage = thresh_img[:, sliver:sliver+sliver_width]
-                cv.imwrite(f'media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
+                cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
                 print(f'media\\linenotes\\{notecount}_{self.imagepath}.png')
             
             sliver += sliver_width # move the sliver to the right by the width of the white space.
