@@ -55,7 +55,7 @@ def readPic():
 def dynamic_readPic():
     # this is a dynamic version of readPic, with the value of "tallness" be determined
     # by the height of the first detected staff. This is to accomodate for different sizes of sheet music.
-    img = cv.imread("media\\twinkle star.png")
+    img = cv.imread("media\\silentnight.png")
     if img is None:
         print("Image not found")
         return
@@ -180,6 +180,7 @@ def detect_all_clefs(img_path, template_path):
     
     
 if __name__ == "__main__":
+    dynamic_readPic()
     detect_all_clefs("media\\silentnight.png", "template\\treble_clef.png")
 
     #geminihelper()
