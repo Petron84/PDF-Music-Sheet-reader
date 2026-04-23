@@ -13,8 +13,8 @@ class LineContour():
         print(imagepath)
         self.image =cv.imread(imagepath)
         print("Original image shape: ", self.image.shape)
-        self.image = self._resizetheimage(self.image)
-        print("Resized image shape: ", self.image.shape)
+        #self.image = self._resizetheimage(self.image)
+        #print("Resized image shape: ", self.image.shape)
         self.imagepath = imagepath[6:-4] # removing the .png part of the path
         gray = cv.cvtColor(self.image, cv.COLOR_BGR2GRAY)
         ret, thresh = cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
@@ -49,20 +49,37 @@ class LineContour():
             currentindex = current[1] # moving the two pointers so that they point to the previous sibling of the current one
             current = self.hierarchy[0][currentindex]
 
+        contourAreas = []
+        contourindexes = []
         # chosenIndex, chosenContour = currentindex, self.contours[currentindex] # initializing with dummy values
         # when it exits that loop, I'm at the first contour of that layer.
         # now I will traverse them one by one, appending the indeces to my collection until I find 
         # a contour that does not have a "next sibling"
         while current[0]!=-1: # when this index =-1, contour is the last contour of that layer
-            # chose 10000 as the threshold of contour area             
-            if cv.contourArea(self.contours[currentindex])>=10000.0:
-                lineContourIndeces.append((current,currentindex)) # adds them to my collection.
-                # chosenIndex, chosenContour = currentindex, self.contours[currentindex]
+            #This loop will collect all contours in that layer and measure their areas.
+            contourArea = cv.contourArea(self.contours[currentindex])
+            # print("Current contour area is: ", contourArea)
+            contourAreas.append(contourArea)
+            contourindexes.append(currentindex)
             currentindex = current[0] # moving the two pointers so that they point to the next sibling of the current one
             current = self.hierarchy[0][currentindex]
+
+            
+        avearageArea = sum(contourAreas)/len(contourAreas)
+        print("Average contour area is: ", avearageArea)
+        
+        countBigContours =0
+        
+        #Now we will use the averagearea to filter out the contours that are too small to be lines.
+        for i in range (len(contourAreas)):     
+            if contourAreas[i]>=avearageArea:
+                lineContourIndeces.append((self.hierarchy[0][contourindexes[i]], contourindexes[i])) # adds them to my collection.
+                countBigContours+=1
+     
+        print ("Count of big contours is: ", countBigContours)    
         
         #when it exits that loops, I will have visited all contours in that layer and collected them.
-        print("Line contour indeces are: ", lineContourIndeces)
+        # print("Line contour indeces are: ", lineContourIndeces)
         return lineContourIndeces
 
 
@@ -109,7 +126,7 @@ class LineContour():
     
     
 class LineProcessor():
-    def __init__(self, imagepath = 'PDF-Music-Sheet-reader\\media\\lines\\treble_twinkle star_5.png'):
+    def __init__(self, imagepath = 'media\\lines\\treble_twinkle star_5.png'):
         self.lineImage = cv.imread(imagepath, cv.IMREAD_GRAYSCALE)
         self.colorImage = cv.imread(imagepath) # this is the color version of the line image, we will use it to draw on it and visualize our results.
         self.imagepath = imagepath[12:-4] # removing the .png part of
@@ -212,9 +229,9 @@ class LineProcessor():
             
         # print ("Number of individual lines is: ", len(self.individualLines))
         for line in self.individualLines:
-            # cv.imshow('Line Image', line)
-            # cv.waitKey(0)
-            # cv.destroyAllWindows()
+            cv.imshow('Line Image', line)
+            cv.waitKey(0)
+            cv.destroyAllWindows()
             self._lineSeparatorConvolution(line)
             
             # self._horizontalAnalysis(line)
@@ -246,8 +263,8 @@ class LineProcessor():
             lineImage = line[:, start:end]
             notecount +=1
             self._countclefs+=1
-            cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
-            print(f'PDF-Music-Sheet-reader\\media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
+            cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
+            print(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
         # # I tried other kernels and I found that they don't really work. So we will work with the veritcal filter only.
         # posKernel = np.array([ 
         #     [ 0,  1, 2],
@@ -364,17 +381,23 @@ class LineProcessor():
         This method is designed to break the line into single lines, including the possibility of more than two lines,
         ASSUMING that splitting halfway between lines is a good strategy.
         """
+        print("+++++++++++++++++++++++++++++++++++++ important part", max_indices)
         averageDistance = 0
+        distancecount = 0
         for i in range(len(max_indices)-1):
             distance = max_indices[i+1]-max_indices[i]
-            averageDistance+=distance
+            if(distance>1):
+                distancecount+=1
+                averageDistance+=distance
             
-        averageDistance = averageDistance/(len(max_indices)-1)
+        averageDistance = averageDistance/distancecount
+        print("Average distance between lines is: ", averageDistance)
         
         #will save these in a list of tuples, (distance, (first_y, second_y))
         distances = []
         for i in range(len(max_indices)-1):
             distance = max_indices[i+1]-max_indices[i]
+            print(f"Distance between line {i} and line {i+1} is: ", distance)
             if distance>averageDistance:
                 distances.append(int((max_indices[i] + max_indices[i+1]) / 2))
         

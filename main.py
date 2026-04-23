@@ -32,10 +32,11 @@ def findFirstBlack(image,segment):
     
 if __name__ == "__main__":
     # imagepath ='media\\blanktreble.png'
-    imagepath ='media\\silentnight.png'
-    # imagepath ='PDF-Music-Sheet-reader\\media\\twinkle star.png'
+    # imagepath ='media\\silentnight.png'
+    # imagepath ='media\\twinkle star.png'
     #imagepath ="media\\basetemplate.png"
     # firstContours(imagepath)
+    imagepath = "media\\pdf2png(1).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(3).png"
     lineContour = LineContour(imagepath)

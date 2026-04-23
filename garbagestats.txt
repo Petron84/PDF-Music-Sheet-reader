@@ -1,4 +1,0 @@
-Garbage: 310
-Not Garbage: 319
-Max height of non-garbage images: 101
-Max width of non-garbage images: 51
