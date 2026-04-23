@@ -229,9 +229,9 @@ class LineProcessor():
             
         # print ("Number of individual lines is: ", len(self.individualLines))
         for line in self.individualLines:
-            cv.imshow('Line Image', line)
-            cv.waitKey(0)
-            cv.destroyAllWindows()
+            # cv.imshow('Line Image', line)
+            # cv.waitKey(0)
+            # cv.destroyAllWindows()
             self._lineSeparatorConvolution(line)
             
             # self._horizontalAnalysis(line)
