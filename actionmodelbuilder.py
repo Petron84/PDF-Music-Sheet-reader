@@ -1,3 +1,4 @@
+from sympy import Max
 import torch
 from torch.utils.data import Dataset, DataLoader
 # from torchvision import transforms
@@ -18,6 +19,8 @@ class MusicNoteDataset(Dataset):
                     parts = line.strip().split(', ')
                     if len(parts) == 2:
                         self.samples.append((parts[0], int(parts[1])))
+                    else:
+                        print(f"Skipping malformed line: {line.strip()}")
 
     def __len__(self):
         return len(self.samples)
@@ -30,10 +33,12 @@ class MusicNoteDataset(Dataset):
         image = Image.open(img_path).convert('RGB')
         w, h = image.size
         
-        # Target: 101 height, 51 width
+        # Target: 
+        # Max height: 395
+        # Max width: 169
         # Calculate total padding needed
-        total_pad_h = 101 - h
-        total_pad_w = 51 - w
+        total_pad_h = 395 - h
+        total_pad_w = 169 - w
         
         # Split the padding for centering
         pad_left = total_pad_w // 2

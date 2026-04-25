@@ -2,6 +2,8 @@ import cv2 as cv
 import os
 from pathlib import Path
 
+from sympy import Max
+
 def setupgame():
     '''A simple game where the player looks at images of notes and designates them as "garbage" or "not garbage".'''
     subfolder = 'media\\actionmodeldataset'
@@ -101,4 +103,56 @@ def getStats(files):
         f.write(f"Max width of non-garbage images: {max_width}\n")
         
         
+def getMaxShape(files):
+    allShapes = []
+    for im in files:
+        img = cv.imread('media\\actionmodeldataset\\' + im)
+        allShapes.append(img.shape)
+        
+    max_height = max(shape[0] for shape in allShapes)
+    max_width = max(shape[1] for shape in allShapes)
     
+    print(f"Max height: {max_height}")
+    print(f"Max width: {max_width}") 
+ 
+
+def modifyAllToMakeSize(folderpath='media\\actionmodeldataset', targetheight=395, targetwidth=169):
+    #Max height: 395
+    #Max width: 169
+    #These were measured previously using getMaxShape()
+    with open('actionlog.txt', 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        if line.strip():  # Check if the line is not empty
+            im, label = line.strip().split(', ')
+            img = cv.imread(folderpath + '\\' + im)
+            h, w, c = img.shape
+            print(f"Original shape of {im}: {img.shape}")
+            # I need to see if the height needs adjusting
+            if h < targetheight:
+                padding_needed = targetheight - h
+                top_padding = padding_needed // 2
+                bottom_padding = padding_needed - top_padding
+                img = cv.copyMakeBorder(img, top_padding, bottom_padding, 0, 0, cv.BORDER_CONSTANT, value=[255, 255, 255])
+            
+            #checking if width padding is needed    
+            if w < targetwidth:
+                #If label is widen left, add padding to the right. If label is widen right, add padding to the left. 
+                # If label is picture or garbage, add padding equally to both sides.
+                padding_needed = targetwidth - w
+                if label == '1':  # widen left
+                    img = cv.copyMakeBorder(img, 0, 0, 0, padding_needed, cv.BORDER_CONSTANT, value=[255, 255, 255])
+                    #save this to the same file name, overwriting the old one
+                    cv.imwrite(folderpath + '\\' + im, img)
+                elif label == '2':  # widen right
+                    img = cv.copyMakeBorder(img, 0, 0, padding_needed, 0, cv.BORDER_CONSTANT, value=[255, 255, 255])
+                    #save this to the same file name, overwriting the old one
+                    cv.imwrite(folderpath + '\\' + im, img)
+                else:  # picture or garbage
+                    left_padding = padding_needed // 2
+                    right_padding = padding_needed - left_padding
+                    img = cv.copyMakeBorder(img, 0, 0, left_padding, right_padding, cv.BORDER_CONSTANT, value=[255, 255, 255])
+                    #save this to the same file name, overwriting the old one
+                    cv.imwrite(folderpath + '\\' + im, img)
+                    
+                    

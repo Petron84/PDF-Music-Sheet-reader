@@ -55,5 +55,7 @@ if __name__ == "__main__":
     # cv.waitKey(0)
     # cv.destroyAllWindows()
     # garbagemodeltruthbuilder.setupgame()
-    garbagemodeltruthbuilder.getStats(os.listdir('media\\actionmodeldataset'))
+    # garbagemodeltruthbuilder.getStats(os.listdir('media\\actionmodeldataset'))
+    # garbagemodeltruthbuilder.getMaxShape(os.listdir('media\\actionmodeldataset'))
+    garbagemodeltruthbuilder.modifyAllToMakeSize()
     
