@@ -54,5 +54,6 @@ if __name__ == "__main__":
     # cv.imshow("Displayed Image", image)
     # cv.waitKey(0)
     # cv.destroyAllWindows()
-    garbagemodeltruthbuilder.setupgame()
+    # garbagemodeltruthbuilder.setupgame()
+    garbagemodeltruthbuilder.getStats(os.listdir('media\\actionmodeldataset'))
     

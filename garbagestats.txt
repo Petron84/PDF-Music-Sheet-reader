@@ -1,0 +1,6 @@
+Garbage: 5259
+Widen Left: 887
+Widen Right: 1498
+Picture: 806
+Max height of non-garbage images: 395
+Max width of non-garbage images: 169

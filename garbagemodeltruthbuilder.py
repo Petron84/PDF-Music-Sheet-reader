@@ -53,24 +53,36 @@ def logintotext(file, key):
     
 def getStats(files):
 
-    with open('garbagelog.txt', 'r') as f:
+    with open('actionlog.txt', 'r') as f:
         lines = f.readlines() 
     garbage_count = 0
-    not_garbage_count = 0
+    widen_left_count = 0
+    widen_right_count = 0
+    picture_count = 0
     
     nongarbage = []
    
     for line in lines:
         if line.strip():  # Check if the line is not empty
             im, label = line.strip().split(', ')
+            print(f"Image: {im}, Label: {label}")
             if label == '1':
-                not_garbage_count += 1
+                widen_left_count += 1
                 nongarbage.append(im)
             elif label == '0':
                 garbage_count += 1
+            elif label == '2':
+                widen_right_count += 1
+                nongarbage.append(im)
+            elif label == '3':
+                picture_count += 1
+                nongarbage.append(im)
     
+    print(f"Nongarbage size is {len(nongarbage)}")
     print(f"Garbage: {garbage_count}")
-    print(f"Not Garbage: {not_garbage_count}")
+    print(f"Widen Left: {widen_left_count}")
+    print(f"Widen Right: {widen_right_count}")
+    print(f"Picture: {picture_count}")
     
     allShapes = []
     for im in nongarbage:
@@ -82,7 +94,9 @@ def getStats(files):
         
     with open('garbagestats.txt', 'w') as f:
         f.write(f"Garbage: {garbage_count}\n")
-        f.write(f"Not Garbage: {not_garbage_count}\n")
+        f.write(f"Widen Left: {widen_left_count}\n")
+        f.write(f"Widen Right: {widen_right_count}\n")
+        f.write(f"Picture: {picture_count}\n")
         f.write(f"Max height of non-garbage images: {max_height}\n")
         f.write(f"Max width of non-garbage images: {max_width}\n")
         
