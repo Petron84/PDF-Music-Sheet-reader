@@ -5,7 +5,7 @@ import numpy as np
 from geminicode import geminihelper
 from statdicer import LineContour
 import garbagemodeltruthbuilder
-from actionmodelbuilder import deleteTooSmall
+import actionmodelbuilder
 
 def readMyPic():
     img = cv.imread('media\\blanktreble.png')
@@ -57,5 +57,6 @@ if __name__ == "__main__":
     # garbagemodeltruthbuilder.setupgame()
     # garbagemodeltruthbuilder.getStats(os.listdir('media\\actionmodeldataset'))
     # garbagemodeltruthbuilder.getMaxShape(os.listdir('media\\actionmodeldataset'))
-    garbagemodeltruthbuilder.modifyAllToMakeSize()
+    # garbagemodeltruthbuilder.modifyAllToMakeSize()
+    actionmodelbuilder.train_action_model()
     

@@ -1,26 +1,32 @@
-from sympy import Max
 import torch
 from torch.utils.data import Dataset, DataLoader
-# from torchvision import transforms
-from PIL import Image, ImageOps
+from torchvision import transforms
+import cv2
 import os
+from PIL import Image
 
-
-class MusicNoteDataset(Dataset):
-    def __init__(self, log_file, img_dir, transform=None):
+class ActionModelDataset(Dataset):
+    def __init__(self, txt_file='actionlog.txt', img_dir='media\\actionmodeldataset', transform=None):
+        """
+        Args:
+            txt_file (string): Path to the txt file with 'filename,label'.
+            img_dir (string): Directory where all .png files are stored.
+            transform (callable, optional): PyTorch transforms to apply.
+        """
         self.img_dir = img_dir
         self.transform = transform
-        self.samples = [] # index 0 will be the image name, index 1 will be the label (0,1,2 or 3)
-        
-        with open(log_file, 'r') as f:
+        self.samples = []
+
+        # Parse the text file
+        with open(txt_file, 'r') as f:
             for line in f:
-                if line.strip():
-                    # Your log format uses ', ' as a separator
-                    parts = line.strip().split(', ')
-                    if len(parts) == 2:
-                        self.samples.append((parts[0], int(parts[1])))
-                    else:
-                        print(f"Skipping malformed line: {line.strip()}")
+                line = line.strip()
+                if not line:
+                    continue
+                
+                # Split by comma: e.g., "image1.png,0"
+                file_name, label = line.split(',')
+                self.samples.append((file_name, int(label)))
 
     def __len__(self):
         return len(self.samples)
@@ -29,34 +35,60 @@ class MusicNoteDataset(Dataset):
         img_name, label = self.samples[idx]
         img_path = os.path.join(self.img_dir, img_name)
         
-        # Load image (OpenCV reads BGR, PIL reads RGB - usually better for Torchvision)
-        image = Image.open(img_path).convert('RGB')
-        w, h = image.size
+        # OpenCV reads as Grayscale (H x W)
+        image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         
-        # Target: 
-        # Max height: 395
-        # Max width: 169
-        # Calculate total padding needed
-        total_pad_h = 395 - h
-        total_pad_w = 169 - w
-        
-        # Split the padding for centering
-        pad_left = total_pad_w // 2
-        pad_right = total_pad_w - pad_left
-        pad_top = total_pad_h // 2
-        pad_bottom = total_pad_h - pad_top
-        
-        # PIL Padding: (left, top, right, bottom)
-        padding = (pad_left, pad_top, pad_right, pad_bottom)
-        
-        # Pad with white pixels (255, 255, 255)
-        image = ImageOps.expand(image, padding, fill=(255, 255, 255)) 
+        if image is None:
+            raise FileNotFoundError(f"Failed to load image: {img_path}")
 
+        # If transform is provided, apply it
+        # ToTensor() will scale 0-255 to 0.0-1.0 automatically
         if self.transform:
             image = self.transform(image)
-            
+
         return image, torch.tensor(label, dtype=torch.long)
+
+
+
+def train_action_model():
+    # Define the pipeline: Numpy -> PIL -> Grayscale Tensor
+    data_transforms = transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Grayscale(num_output_channels=1),
+        transforms.ToTensor()
+    ])
+
+    # Initialize the dataset
+    action_dataset = ActionModelDataset(
+        txt_file='actionlog.txt', 
+        img_dir='media\\actionmodeldataset',
+        transform=data_transforms
+    )
+
+    # Create the Dataloader
+    train_loader = DataLoader(
+        dataset=action_dataset,
+        batch_size=32,
+        shuffle=True,
+        num_workers=0  # Set to 0 for easier debugging on Windows
+    )
     
+    print(f"Dataset initialized with {len(action_dataset)} samples.")
+
+    # --- Verification Block ---
+    try:
+        # Pull the first batch
+        images, labels = next(iter(train_loader))
+        
+        print("-" * 30)
+        print("Success! Data loaded successfully.")
+        print(f"Batch Image Shape: {images.shape}") # Expected: [32, 1, H, W]
+        print(f"Batch Label Shape: {labels.shape}") # Expected: [32]
+        print(f"Labels in this batch: {labels.tolist()}")
+        print("-" * 30)
+        
+    except Exception as e:
+        print(f"Error during data loading: {e}")
     
     
 def deleteTooSmall():

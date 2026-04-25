@@ -156,3 +156,22 @@ def modifyAllToMakeSize(folderpath='media\\actionmodeldataset', targetheight=395
                     cv.imwrite(folderpath + '\\' + im, img)
                     
                     
+def getAverageandStandardDev(folderpath='media\\actionmodeldataset'):
+    allShapes = []
+    for im in os.listdir(folderpath):
+        img = cv.imread(folderpath + '\\' + im)
+        allShapes.append(img.shape)
+        
+    heights = [shape[0] for shape in allShapes]
+    widths = [shape[1] for shape in allShapes]
+    
+    average_height = sum(heights) / len(heights)
+    average_width = sum(widths) / len(widths)
+    
+    std_dev_height = (sum((h - average_height) ** 2 for h in heights) / len(heights)) ** 0.5
+    std_dev_width = (sum((w - average_width) ** 2 for w in widths) / len(widths)) ** 0.5
+    
+    print(f"Average height: {average_height}")
+    print(f"Average width: {average_width}")
+    print(f"Standard deviation of height: {std_dev_height}")
+    print(f"Standard deviation of width: {std_dev_width}")
