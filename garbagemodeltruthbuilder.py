@@ -17,7 +17,7 @@ def setupgame():
         files = os.listdir('media\\garbagefilterdataset')
         print(len(files))
         
-    getStats(files)
+    # getStats(files)
     
 def startgame(files):
     lastone = open('media\\groundtruth\\lastfile.txt', 'r').read().strip()
