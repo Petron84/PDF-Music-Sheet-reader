@@ -227,17 +227,36 @@ class LineProcessor():
         else:
             self.individualLines.append(thresh_img) # if there is only one line, then we will just add the whole line image to our individual lines collection.
             
+        linedifferentiator = 1
         # print ("Number of individual lines is: ", len(self.individualLines))
         for line in self.individualLines:
             # cv.imshow('Line Image', line)
             # cv.waitKey(0)
             # cv.destroyAllWindows()
             self._lineSeparatorConvolution(line)
+            for i in range(3,10):
+                x_increment = i * 5
+                self._randomSeparator(line, x_increment, i,linedifferentiator)
+            linedifferentiator+=1
             
             # self._horizontalAnalysis(line)
             # self._lookfornotes(corners, max_indices, line , 10)
             
-    
+            
+    def _randomSeparator(self, line, x_increment,iteration,linedifferentiator):
+        """This method will cut the image randomly"""
+        h, w = line.shape
+        x_start = 30
+        x_end = x_start + x_increment
+        count = 0
+        clefofline = self._identifyClef(line)
+        while x_end < w:
+            segment = line[:, x_start:x_end]
+            count += 1
+            cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_random{linedifferentiator}_{clefofline}_{self._namesubstring}_v{iteration}_{count}.png', segment)
+            x_start = x_end
+            x_end = x_start + x_increment
+
     def _lineSeparatorConvolution(self, line):
         """This method will perform a line separation convolution on the line image."""
         clefofline = self._identifyClef(line)
@@ -381,7 +400,7 @@ class LineProcessor():
         This method is designed to break the line into single lines, including the possibility of more than two lines,
         ASSUMING that splitting halfway between lines is a good strategy.
         """
-        print("+++++++++++++++++++++++++++++++++++++ important part", max_indices)
+        # print("+++++++++++++++++++++++++++++++++++++ important part", max_indices)
         averageDistance = 0
         distancecount = 0
         for i in range(len(max_indices)-1):
