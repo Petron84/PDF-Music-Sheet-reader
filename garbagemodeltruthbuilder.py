@@ -26,6 +26,7 @@ def startgame(files):
     if len(lastone) != 0:
         while files[fileindex] != lastone:
             fileindex += 1
+        fileindex += 1
     
     for i in range(fileindex, len(files)):
         if i == len(files)-1:

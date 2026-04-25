@@ -233,8 +233,8 @@ class LineProcessor():
             # cv.imshow('Line Image', line)
             # cv.waitKey(0)
             # cv.destroyAllWindows()
-            self._lineSeparatorConvolution(line)
-            for i in range(3,10):
+            #self._lineSeparatorConvolution(line)
+            for i in range(20,30):
                 x_increment = i * 5
                 self._randomSeparator(line, x_increment, i,linedifferentiator)
             linedifferentiator+=1
@@ -253,7 +253,7 @@ class LineProcessor():
         while x_end < w:
             segment = line[:, x_start:x_end]
             count += 1
-            cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_random{linedifferentiator}_{clefofline}_{self._namesubstring}_v{iteration}_{count}.png', segment)
+            cv.imwrite(f'media\\linenotes\\9_{self._linecountsubstring}_random{linedifferentiator}_{clefofline}_wwholenotehunter_v{iteration}_{count}.png', segment)
             x_start = x_end
             x_end = x_start + x_increment
 
