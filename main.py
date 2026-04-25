@@ -46,7 +46,7 @@ if __name__ == "__main__":
     # lineContour = LineContour(imagepath)
     # lineContour.drawFirstLayerContours()
     # 
-    deleteTooSmall()
+    # deleteTooSmall()
     # imagepath = "media\\linenotes\\1_random1_treble_pdf2png(1)_v3_24.png"
     # image = cv.imread(imagepath)
     # w, h, c = image.shape
@@ -54,4 +54,5 @@ if __name__ == "__main__":
     # cv.imshow("Displayed Image", image)
     # cv.waitKey(0)
     # cv.destroyAllWindows()
+    garbagemodeltruthbuilder.setupgame()
     

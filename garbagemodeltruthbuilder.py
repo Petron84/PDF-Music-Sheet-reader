@@ -4,7 +4,7 @@ from pathlib import Path
 
 def setupgame():
     '''A simple game where the player looks at images of notes and designates them as "garbage" or "not garbage".'''
-    subfolder = 'media\\garbagefilterdataset'
+    subfolder = 'media\\actionmodeldataset'
     # Create a path object for the subfolder relative to your current location
     subfolder_path = Path(".") / subfolder
     # Check if it exists to avoid errors
@@ -14,7 +14,7 @@ def setupgame():
         startgame(files)
     else:
         print("Folder not found!")
-        files = os.listdir('media\\garbagefilterdataset')
+        files = os.listdir('media\\actionmodeldataset')
         print(len(files))
         
     # getStats(files)
@@ -31,11 +31,11 @@ def startgame(files):
         if i == len(files)-1:
             continue
         file = files[i]
-        img = cv.imread('media\\garbagefilterdataset\\' + file)
+        img = cv.imread('media\\actionmodeldataset\\' + file)
         cv.imshow("Displayed Image", img)
         key = cv.waitKey(0)  # Wait for a key press
-        while not (key == ord('0') or key == ord('1')):
-            print("Invalid key pressed. Please press '0' for garbage or '1' for not garbage.")
+        while not (key == ord('0') or key == ord('1') or key == ord('2') or key == ord('3')):
+            print("Invalid key pressed. Please press '0' for Skip, '1' for widen left, '2' for widen right, '3' for Save.")
             key = cv.waitKey(0)  # Wait for a key press again
         key = int(chr(key))
         print(key)
@@ -43,7 +43,7 @@ def startgame(files):
         cv.destroyAllWindows()
         
 def logintotext(file, key):
-    with open('garbagelog.txt', 'a') as f:
+    with open('actionlog.txt', 'a') as f:
         f.write(f"{file}, {key}\n")
     
     with open('media\\groundtruth\\lastfile.txt', 'w') as f:
@@ -73,7 +73,7 @@ def getStats(files):
     
     allShapes = []
     for im in nongarbage:
-        img = cv.imread('media\\garbagefilterdataset\\' + im)
+        img = cv.imread('media\\actionmodeldataset\\' + im)
         allShapes.append(img.shape)
         
     max_height = max(shape[0] for shape in allShapes)
