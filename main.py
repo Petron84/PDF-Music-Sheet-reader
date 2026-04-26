@@ -1,3 +1,4 @@
+import torch
 import cv2 as cv
 import matplotlib.pyplot as plt
 import os
@@ -38,12 +39,12 @@ if __name__ == "__main__":
     #imagepath ="media\\basetemplate.png"
     # firstContours(imagepath)
     # imagepath = "media\\pdf2png(1).png"
-    # imagepath = "media\\pdf2png(2).png"
+    imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\Enfantilligis_2.png"
     # imagepath = "media\\pdf2png(3).png"
-    # lineContour = LineContour(imagepath)
+    lineContour = LineContour(imagepath)
     # lineContour.drawFirstLayerContours()
     # 
     # deleteTooSmall()
@@ -58,5 +59,5 @@ if __name__ == "__main__":
     # garbagemodeltruthbuilder.getStats(os.listdir('media\\actionmodeldataset'))
     # garbagemodeltruthbuilder.getMaxShape(os.listdir('media\\actionmodeldataset'))
     # garbagemodeltruthbuilder.modifyAllToMakeSize()
-    actionmodelbuilder.train_action_model()
+    # actionmodelbuilder.train_action_model()
     

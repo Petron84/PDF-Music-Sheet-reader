@@ -7,6 +7,11 @@ import torch
 import torch.nn as nn
 import numpy as np
 # import matplotlib.pyplot as plt
+from actionmodelbuilder import ActionModel
+
+
+
+
 
 class LineContour():
     def __init__(self, imagepath = 'media\\twinkle star.png'):
@@ -127,6 +132,9 @@ class LineContour():
     
 class LineProcessor():
     def __init__(self, imagepath = 'media\\lines\\treble_twinkle star_5.png'):
+        self.model = ActionModel()
+        self.model.load_state_dict(torch.load('models\\action_model.pth', weights_only=True))
+        self.model.eval()
         self.lineImage = cv.imread(imagepath, cv.IMREAD_GRAYSCALE)
         self.colorImage = cv.imread(imagepath) # this is the color version of the line image, we will use it to draw on it and visualize our results.
         self.imagepath = imagepath[12:-4] # removing the .png part of
@@ -406,13 +414,13 @@ class LineProcessor():
                 averageDistance+=distance
             
         averageDistance = averageDistance/distancecount
-        print("Average distance between lines is: ", averageDistance)
+        # print("Average distance between lines is: ", averageDistance)
         
         #will save these in a list of tuples, (distance, (first_y, second_y))
         distances = []
         for i in range(len(max_indices)-1):
             distance = max_indices[i+1]-max_indices[i]
-            print(f"Distance between line {i} and line {i+1} is: ", distance)
+            # print(f"Distance between line {i} and line {i+1} is: ", distance)
             if distance>averageDistance:
                 distances.append(int((max_indices[i] + max_indices[i+1]) / 2))
         
