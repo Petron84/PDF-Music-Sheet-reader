@@ -132,9 +132,9 @@ class LineContour():
     
 class LineProcessor():
     def __init__(self, imagepath = 'media\\lines\\treble_twinkle star_5.png'):
-        self.model = ActionModel()
-        self.model.load_state_dict(torch.load('models\\action_model.pth', weights_only=True))
-        self.model.eval()
+        # self.model = ActionModel()
+        # self.model.load_state_dict(torch.load('models\\action_model.pth', weights_only=True))
+        # self.model.eval()
         self.lineImage = cv.imread(imagepath, cv.IMREAD_GRAYSCALE)
         self.colorImage = cv.imread(imagepath) # this is the color version of the line image, we will use it to draw on it and visualize our results.
         self.imagepath = imagepath[12:-4] # removing the .png part of
@@ -241,13 +241,13 @@ class LineProcessor():
             # cv.imshow('Line Image', line)
             # cv.waitKey(0)
             # cv.destroyAllWindows()
-            self._lineSeparatorConvolution(line)
+            # self._lineSeparatorConvolution(line)
             #Call these lines in order to build a dataset:
-            # self._lineSeparatorConvolution_dataset(line)
-            # for i in range(20,30):
-            #     x_increment = i * 5
-            #     self._randomSeparator(line, x_increment, i,linedifferentiator)
-            # linedifferentiator+=1
+            self._lineSeparatorConvolution_dataset(line)
+            for i in range(5,20): #images will range between 25 and 100 wide
+                x_increment = i * 5
+                self._randomSeparator(line, x_increment, i,linedifferentiator)
+            linedifferentiator+=1
             
             # self._horizontalAnalysis(line)
             # self._lookfornotes(corners, max_indices, line , 10)
@@ -263,7 +263,7 @@ class LineProcessor():
         while x_end < w:
             segment = line[:, x_start:x_end]
             count += 1
-            cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_random{linedifferentiator}_{clefofline}_{self._namesubstring}_v{iteration}_{count}.png', segment)
+            cv.imwrite(f'media\\actionmodeldataset_v2\\{self._linecountsubstring}_random{linedifferentiator}_{clefofline}_{self._namesubstring}_v{iteration}_{count}.png', segment)
             x_start = x_end
             x_end = x_start + x_increment
 
@@ -293,8 +293,8 @@ class LineProcessor():
             lineImage = line[:, start:end]
             notecount +=1
             self._countclefs+=1
-            cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
-            print(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
+            cv.imwrite(f'media\\actionmodeldataset_v2\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
+            print(f'media\\actionmodeldataset_v2\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
     def _lineSeparatorConvolution(self, line):
         """ This method incorporate the model.
         This method will perform a line separation convolution on the line image."""

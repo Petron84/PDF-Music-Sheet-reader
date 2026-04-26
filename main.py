@@ -39,15 +39,15 @@ if __name__ == "__main__":
     #imagepath ="media\\basetemplate.png"
     # firstContours(imagepath)
     # imagepath = "media\\pdf2png(1).png"
-    imagepath = "media\\pdf2png(2).png"
+    # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\Enfantilligis_2.png"
     # imagepath = "media\\pdf2png(3).png"
-    lineContour = LineContour(imagepath)
+    # lineContour = LineContour(imagepath)
     # lineContour.drawFirstLayerContours()
     # 
-    # deleteTooSmall()
+    # actionmodelbuilder.deleteTooSmall()
     # imagepath = "media\\linenotes\\1_random1_treble_pdf2png(1)_v3_24.png"
     # image = cv.imread(imagepath)
     # w, h, c = image.shape
@@ -55,9 +55,9 @@ if __name__ == "__main__":
     # cv.imshow("Displayed Image", image)
     # cv.waitKey(0)
     # cv.destroyAllWindows()
-    # garbagemodeltruthbuilder.setupgame()
-    # garbagemodeltruthbuilder.getStats(os.listdir('media\\actionmodeldataset'))
-    # garbagemodeltruthbuilder.getMaxShape(os.listdir('media\\actionmodeldataset'))
+    garbagemodeltruthbuilder.setupgame()
+    # garbagemodeltruthbuilder.getStats(os.listdir('media\\actionmodeldataset_v2'))
+    # garbagemodeltruthbuilder.getMaxShape(os.listdir('media\\actionmodeldataset_v2'))
     # garbagemodeltruthbuilder.modifyAllToMakeSize()
     # actionmodelbuilder.train_action_model()
     

@@ -182,10 +182,10 @@ def train_action_model():
 
     
 def deleteTooSmall():
-    """We will go through the files in linenotes and then delete the ones that are more narrow than 15 pixels because they are not useful for training the model
+    """We will go through the files in actionmodeldataset_v2 and then delete the ones that are more narrow than 2025 pixels because they are not useful for training the model
     """
     deleted_files = 0
-    folder_path = 'media\\linenotes'
+    folder_path = 'media\\actionmodeldataset_v2'
     for filename in os.listdir(folder_path):
         file_path = os.path.join(folder_path, filename)
         
