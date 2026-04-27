@@ -1,12 +1,50 @@
 import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 from torchvision import transforms
+import numpy as np
 import cv2
 import os
 from PIL import Image
 
+
+
+
+def pad_and_resize_transform(img):
+    """
+    Custom transform function for OpenCV images.
+    Pads height from the top to 395 and resizes width to 76.
+    """
+    # Ensure it's a numpy array (OpenCV format)
+    if not isinstance(img, np.ndarray):
+        img = np.array(img)
+
+    target_height = 395
+    target_width = 76
+    h, w = img.shape[:2]
+
+    # 1. Resize width specifically to 76
+    # In your pad_and_resize_transform function:
+    if w > target_width:
+        # Use AREA for shrinking to keep notes clear
+        img = cv2.resize(img, (target_width, h), interpolation=cv2.INTER_AREA)
+    else:
+        # Use LINEAR or CUBIC for stretching to avoid blockiness
+        img = cv2.resize(img, (target_width, h), interpolation=cv2.INTER_LINEAR)
+
+    # 2. Pad height from the top to 395
+    # Re-check height after width resize
+    h, w = img.shape[:2]
+    if h < target_height:
+        padding_needed = target_height - h
+        # top, bottom, left, right padding
+        img = cv2.copyMakeBorder(img, padding_needed, 0, 0, 0, cv2.BORDER_CONSTANT, value=255)
+    elif h > target_height:
+        # If already too tall, resize to fit exactly
+        img = cv2.resize(img, (target_width, target_height), interpolation=cv2.INTER_AREA)
+
+    return img
 class ActionModelDataset(Dataset):
-    def __init__(self, txt_file='actionlog.txt', img_dir='media\\actionmodeldataset', transform=None):
+    def __init__(self, txt_file='actionlog.txt', img_dir='media\\actionmodeldataset_v2', transform=None):
         """
         Args:
             txt_file (string): Path to the txt file with 'filename,label'.
@@ -53,7 +91,7 @@ class ActionModel(torch.nn.Module):
         super(ActionModel, self).__init__()
         self.conv1 = torch.nn.Conv2d(1, 16, kernel_size=3, padding=1) 
         self.conv2 = torch.nn.Conv2d(16, 32, kernel_size=3, padding=1)
-        self.fc1 = torch.nn.Linear(32 * 98 * 42, 32)  #targetheight=395, targetwidth=169 by half
+        self.fc1 = torch.nn.Linear(32 * 98 * 19, 32)  
         self.fc2 = torch.nn.Linear(32, 64) 
         self.fc3 = torch.nn.Linear(64, 128) 
         self.fc4 = torch.nn.Linear(128, 4) 
@@ -64,7 +102,7 @@ class ActionModel(torch.nn.Module):
         x = self.pool(x)  # Reduce spatial dimensions by half
         x = torch.relu(self.conv2(x))
         x = self.pool(x)  # Reduce spatial dimensions by half
-        x = x.view(-1, 32 * 98 * 42)  # Flatten
+        x = x.view(-1, 32 * 98 * 19)  # Flatten
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
         x = torch.relu(self.fc3(x))
@@ -74,8 +112,9 @@ class ActionModel(torch.nn.Module):
 def train_action_model():
     # 1. Define Transforms (Crucial: Resize to match your Linear layer math)
     data_transforms = transforms.Compose([
+        pad_and_resize_transform,  # Custom function to pad and resize using OpenCV
         transforms.ToPILImage(),
-        transforms.Resize((395, 169)), # Ensuring all images match your CNN input
+        # transforms.Resize((395, 169)), # Ensuring all images match your CNN input
         transforms.Grayscale(num_output_channels=1),
         transforms.ToTensor()
     ])
@@ -83,7 +122,7 @@ def train_action_model():
     # Initialize the dataset
     action_dataset = ActionModelDataset(
         txt_file='actionlog.txt', 
-        img_dir='media\\actionmodeldataset',
+        img_dir='media\\actionmodeldataset_v2',
         transform=data_transforms
     )
     

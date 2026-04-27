@@ -114,9 +114,35 @@ def getMaxShape(files):
     
     print(f"Max height: {max_height}")
     print(f"Max width: {max_width}") 
- 
+    
+    ave_height = sum(shape[0] for shape in allShapes) / len(allShapes)
+    ave_width = sum(shape[1] for shape in allShapes) / len(allShapes)
+    
+    print(f"Average height: {ave_height}")
+    print(f"Average width: {ave_width}")
+    
+    median_height = sorted(shape[0] for shape in allShapes)[len(allShapes) // 2]
+    median_width = sorted(shape[1] for shape in allShapes)[len(allShapes) // 2] 
+    
+    print(f"Median height: {median_height}")
+    print(f"Median width: {median_width}")
+    
+    # count the number of images with width greater than 76
+    count_greater_than_76 = sum(1 for shape in allShapes if shape[1] > 76)
+    print(f"Number of images with width greater than 76: {count_greater_than_76}")
+    # count the number of images with width less than or equal to 76
+    count_less_than_or_equal_to_76 = sum(1 for shape in allShapes if shape[1] <= 76)
+    print(f"Number of images with width less than or equal to 76: {count_less_than_or_equal_to_76}")
+    
+    with open('garbagestats.txt', 'a') as f:
+        f.write(f"Max height: {max_height}\n")
+        f.write(f"Max width: {max_width}\n")
+        f.write(f"Average height: {ave_height}\n")
+        f.write(f"Average width: {ave_width}\n")
+        f.write(f"Median height: {median_height}\n")
+        f.write(f"Median width: {median_width}\n")
 
-def modifyAllToMakeSize(folderpath='media\\actionmodeldataset', targetheight=395, targetwidth=169):
+def _modifyAllToMakeSize(folderpath='media\\actionmodeldataset', targetheight=395, targetwidth=169):
     #Max height: 395
     #Max width: 169
     #These were measured previously using getMaxShape()
