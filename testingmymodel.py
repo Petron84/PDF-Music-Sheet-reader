@@ -1,6 +1,11 @@
+import os
+
 import torch
 import cv2 as cv
-from actionmodelbuilder import ActionModel  # Import your architecture
+from actionmodelbuilder import ActionModel, pad_and_resize_transform,inference_transforms  # Import your architecture
+
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # 1. Initialize the model
 model = ActionModel()
@@ -11,17 +16,31 @@ model.load_state_dict(torch.load('models\\action_model.pth', weights_only=True))
 # 3. Set to evaluation mode for inference
 model.eval()
 
-img = cv.imread('media\\linenotes\\4_29_treble_pdf2png(2)_v29.png')
-#lets pad with white pixels
-target_height = 395
-target_width = 169
-img = cv.copyMakeBorder(img, 0, target_height - img.shape[0], 0, target_width - img.shape[1], cv.BORDER_CONSTANT, value=[255, 255, 255]) 
-img_tensor = torch.from_numpy(img).float()
-img_tensor = img_tensor.unsqueeze(0).unsqueeze(0)
-# Use the model for predictions
-logits = model(img_tensor)
+for param in model.parameters():
+    param.requires_grad = False
+    
+dir = 'media\\actionmodeldataset_v2'
+files = os.listdir(dir)
+for file in files:
+    print(file)
+    # pulling and example image to see how it is performing.
+    img = cv.imread(f'{dir}\\{file}')
+    # img = pad_and_resize_transform(img)  # Apply the same padding and resizing as during training
+    # if len(img.shape) == 3:
+    #     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    img_tensor = inference_transforms(img).unsqueeze(0).to(device)
+    # img_tensor = torch.from_numpy(img).float()/255.0
+    # img_tensor = img_tensor.unsqueeze(0).unsqueeze(0)
+    logits = model(img_tensor)
+    probabilities = torch.nn.functional.softmax(logits, dim=1)
+    print(probabilities)
+    max_prob = torch.max(probabilities).item()
+    if max_prob < 0.7:
+        print(f"Warning: Model is guessing! Confidence is only {max_prob:.2f}")
+    predicted_index = torch.argmax(probabilities, dim=1).item()
+    print(predicted_index)
+    cv.imshow("Displayed Image", img)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    
 
-# Convert logits to probabilities (if needed)
-probabilities = torch.nn.functional.softmax(logits, dim=1)
-predicted_index = torch.argmax(probabilities, dim=1).item()
-print(predicted_index)

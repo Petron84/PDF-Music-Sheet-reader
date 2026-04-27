@@ -89,24 +89,33 @@ class ActionModelDataset(Dataset):
 class ActionModel(torch.nn.Module):
     def __init__(self):
         super(ActionModel, self).__init__()
+        self.dropout = torch.nn.Dropout(p=0.2)
         self.conv1 = torch.nn.Conv2d(1, 16, kernel_size=3, padding=1) 
         self.conv2 = torch.nn.Conv2d(16, 32, kernel_size=3, padding=1)
-        self.fc1 = torch.nn.Linear(32 * 98 * 19, 32)  
-        self.fc2 = torch.nn.Linear(32, 64) 
-        self.fc3 = torch.nn.Linear(64, 128) 
-        self.fc4 = torch.nn.Linear(128, 4) 
+        self.conv3 = torch.nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv4 = torch.nn.Conv2d(64, 64, kernel_size=3, padding=1)
+        self.fc1 = torch.nn.Linear(64 * 49 * 9, 512)  
+        self.fc2 = torch.nn.Linear(512, 256) 
+        self.fc3 = torch.nn.Linear(256, 128) 
+        self.fc4 = torch.nn.Linear(128, 128)
+        self.fc5 = torch.nn.Linear(128, 4) 
         self.pool = torch.nn.MaxPool2d(kernel_size=2, stride=2)
 
     def forward(self, x):
-        x = torch.relu(self.conv1(x))
+        x = torch.nn.functional.leaky_relu(self.conv1(x))
         x = self.pool(x)  # Reduce spatial dimensions by half
-        x = torch.relu(self.conv2(x))
+        x = torch.nn.functional.leaky_relu(self.conv2(x))
         x = self.pool(x)  # Reduce spatial dimensions by half
-        x = x.view(-1, 32 * 98 * 19)  # Flatten
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        x = torch.relu(self.fc3(x))
-        x = self.fc4(x)
+        x = torch.nn.functional.leaky_relu(self.conv3(x))
+        x = self.pool(x)  # Reduce spatial dimensions by half
+        x = torch.nn.functional.leaky_relu(self.conv4(x))
+        x = x.view(-1, 64 * 49 * 9)  # Flatten
+        x = torch.nn.functional.leaky_relu(self.fc1(x))
+        x = self.dropout(x)
+        x = torch.nn.functional.leaky_relu(self.fc2(x))
+        x = torch.nn.functional.leaky_relu(self.fc3(x))
+        x = torch.nn.functional.leaky_relu(self.fc4(x))
+        x = self.fc5(x)
         return x
 
 def train_action_model():
@@ -173,7 +182,7 @@ def train_action_model():
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     
     # 6. Training Loop (Skeleton)
-    num_epochs = 5
+    num_epochs = 25
     for epoch in range(num_epochs):
         model.train()
         running_loss = 0.0
@@ -219,6 +228,13 @@ def train_action_model():
     print(f"Test Acc: {100 * test_correct/len(test_set):.2f}%")
 
 
+
+inference_transforms = transforms.Compose([
+    pad_and_resize_transform,
+    transforms.ToPILImage(),
+    transforms.Grayscale(num_output_channels=1),
+    transforms.ToTensor()
+])
     
 def deleteTooSmall():
     """We will go through the files in actionmodeldataset_v2 and then delete the ones that are more narrow than 2025 pixels because they are not useful for training the model
