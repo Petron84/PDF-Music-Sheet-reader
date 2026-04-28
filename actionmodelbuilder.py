@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 import os
 from PIL import Image
+from tqdm import tqdm
 
 
 
@@ -86,6 +87,26 @@ class ActionModelDataset(Dataset):
 
         return image, torch.tensor(label, dtype=torch.long)
 
+def getSampler(action_dataset,train_set):
+    # 1. Define counts from your garbagestats.txt
+    # Order must match labels: 0=Garbage, 1=Widen Left, 2=Widen Right, 3=Picture
+    class_counts = [6784, 1618, 2001, 1513] 
+    class_weights = 1.0 / torch.tensor(class_counts, dtype=torch.float)
+
+    # 2. Assign a weight to every sample in the training set
+    # We use the indices from the random_split to get the correct labels
+    train_labels = [action_dataset.samples[i][1] for i in train_set.indices]
+    sample_weights = class_weights[train_labels]
+
+    # 3. Create the Sampler
+    sampler = torch.utils.data.WeightedRandomSampler(
+        weights=sample_weights, 
+        num_samples=len(sample_weights), 
+        replacement=True
+    )
+
+    return sampler
+    
 class ActionModel(torch.nn.Module):
     def __init__(self):
         super(ActionModel, self).__init__()
@@ -93,28 +114,31 @@ class ActionModel(torch.nn.Module):
         self.conv1 = torch.nn.Conv2d(1, 16, kernel_size=3, padding=1) 
         self.conv2 = torch.nn.Conv2d(16, 32, kernel_size=3, padding=1)
         self.conv3 = torch.nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.conv4 = torch.nn.Conv2d(64, 64, kernel_size=3, padding=1)
-        self.fc1 = torch.nn.Linear(64 * 49 * 9, 512)  
-        self.fc2 = torch.nn.Linear(512, 256) 
-        self.fc3 = torch.nn.Linear(256, 128) 
-        self.fc4 = torch.nn.Linear(128, 128)
-        self.fc5 = torch.nn.Linear(128, 4) 
-        self.pool = torch.nn.MaxPool2d(kernel_size=2, stride=2)
+        #self.conv4 = torch.nn.Conv2d(256, 512, kernel_size=3, padding=1)
+        self.adaptive_pool = torch.nn.AdaptiveAvgPool2d((395, 1))  # Ensure output is (128, 24, 5) regardless of input size
+        self.fc1 = torch.nn.Linear(64 * 395 * 1, 64)  
+        self.fc2 = torch.nn.Linear(64, 32) 
+        #self.fc3 = torch.nn.Linear(128, 128) 
+        #self.fc4 = torch.nn.Linear(128, 128)
+        self.fc5 = torch.nn.Linear(32, 4) 
+        self.pool = torch.nn.MaxPool2d((1,2), stride=2)
 
     def forward(self, x):
         x = torch.nn.functional.leaky_relu(self.conv1(x))
         x = self.pool(x)  # Reduce spatial dimensions by half
         x = torch.nn.functional.leaky_relu(self.conv2(x))
-        x = self.pool(x)  # Reduce spatial dimensions by half
+        # x = self.pool(x)  # Reduce spatial dimensions by half
         x = torch.nn.functional.leaky_relu(self.conv3(x))
-        x = self.pool(x)  # Reduce spatial dimensions by half
-        x = torch.nn.functional.leaky_relu(self.conv4(x))
-        x = x.view(-1, 64 * 49 * 9)  # Flatten
+        #x = self.pool(x)  # Reduce spatial dimensions by half
+        #x = torch.nn.functional.leaky_relu(self.conv4(x))
+        x = self.adaptive_pool(x)  # Ensure consistent output size
+        x = x.view(-1, 64 * 395 * 1)  # Flatten
         x = torch.nn.functional.leaky_relu(self.fc1(x))
         x = self.dropout(x)
         x = torch.nn.functional.leaky_relu(self.fc2(x))
-        x = torch.nn.functional.leaky_relu(self.fc3(x))
-        x = torch.nn.functional.leaky_relu(self.fc4(x))
+        x = self.dropout(x)
+        # x = torch.nn.functional.leaky_relu(self.fc3(x))
+        # x = torch.nn.functional.leaky_relu(self.fc4(x))
         x = self.fc5(x)
         return x
 
@@ -146,8 +170,9 @@ def train_action_model():
 
     # 4. Create DataLoaders
     train_loader = DataLoader(train_set, 
-                              batch_size=32, 
-                              shuffle=True, 
+                              batch_size=32,
+                              sampler=getSampler(action_dataset,train_set),  # Use the custom sampler for class balancing 
+                              shuffle=False, 
                               num_workers=0)
     val_loader = DataLoader(val_set, 
                             batch_size=32, 
@@ -178,8 +203,9 @@ def train_action_model():
     # 5. Initialize Model, Loss, and Optimizer
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = ActionModel().to(device)
-    criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    weights = torch.tensor([1.0, 4.2, 3.4, 4.5]).to(device)
+    criterion = torch.nn.CrossEntropyLoss(weight=weights)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
     
     # 6. Training Loop (Skeleton)
     num_epochs = 25
@@ -187,7 +213,7 @@ def train_action_model():
         model.train()
         running_loss = 0.0
         
-        for images, labels in train_loader:
+        for images, labels in tqdm(train_loader, desc=f"Epoch [{epoch+1}/{num_epochs}]"):
             images, labels = images.to(device), labels.to(device)
             
             optimizer.zero_grad()
