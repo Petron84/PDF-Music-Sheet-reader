@@ -38,13 +38,13 @@ if __name__ == "__main__":
     # imagepath ='media\\twinkle star.png'
     #imagepath ="media\\basetemplate.png"
     # firstContours(imagepath)
-    # imagepath = "media\\pdf2png(1).png"
+    imagepath = "media\\pdf2png(1).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\Enfantilligis_2.png"
     # imagepath = "media\\pdf2png(3).png"
-    # lineContour = LineContour(imagepath)
+    lineContour = LineContour(imagepath)
     # lineContour.drawFirstLayerContours()
     # 
     # actionmodelbuilder.deleteTooSmall()
@@ -58,5 +58,5 @@ if __name__ == "__main__":
     # garbagemodeltruthbuilder.setupgame()
     # garbagemodeltruthbuilder.getStats(os.listdir('media\\actionmodeldataset_v2'))
     # garbagemodeltruthbuilder.getMaxShape(os.listdir('media\\actionmodeldataset_v2'))
-    actionmodelbuilder.train_action_model()
+    # actionmodelbuilder.train_action_model()
     
