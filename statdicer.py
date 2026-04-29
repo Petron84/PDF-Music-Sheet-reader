@@ -318,7 +318,10 @@ class LineProcessor():
         opimage = 255 - vertimg # this is the image after inverting the colors. The idea is that the lines will be detected by the kernels and will be white in vertimg, so when we invert it, they will be black and the notes will be white.
         x_ranges = self._getRanges(opimage, clefsize+clefsignatures) # this will get the x ranges of the lines. We will use these to split the line into individual lines.
         notecount = 0
+        lastend = 0
         for (start, end) in x_ranges:
+            if lastend > start:
+                continue
             lineImage = line[:, start:end]
             notecount +=1
             img_tensor = inference_transforms(lineImage).unsqueeze(0).to(device)
@@ -347,8 +350,10 @@ class LineProcessor():
                     predicted_index = torch.argmax(probabilities, dim=1).item()
             if predicted_index == 0:
                 print("garbage")
+                lastend = end
                 continue
             if predicted_index == 3:
+                lastend = end
                 self._countclefs+=1
                 cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
                 print(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
