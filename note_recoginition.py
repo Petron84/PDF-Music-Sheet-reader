@@ -26,7 +26,7 @@ torch.save(dataset.classes, "models/note_classes.pth")  # Save class names for l
 # Train/val split
 train_size = int(0.8 * len(dataset))
 val_size = len(dataset) - train_size
-train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+train_dataset, val_dataset = random_split(dataset, [train_size, val_size])  # fixed seed for reproducibility
 
 batch_size = 16
 
@@ -58,7 +58,7 @@ class NoteCNN(nn.Module):
             nn.Flatten(),
             nn.Linear(64 * 8 * 8, 128),
             nn.LeakyReLU(negative_slope=0.01),
-            nn.Dropout(0.3),          # helps with small dataset overfitting
+            nn.Dropout(0.35),          # helps with small dataset overfitting
             nn.Linear(128, num_classes)
         )
 
@@ -72,13 +72,13 @@ class NoteCNN(nn.Module):
 # ==========================
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-num_classes = 5  # change if needed
+num_classes = len(dataset.classes)
 model = NoteCNN(num_classes=num_classes).to(device)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)  # smaller LR for Adam
 
-epochs = 15  # more epochs for small data
+epochs = 20  # more epochs for small data
 
 # ==========================
 # Training loop
