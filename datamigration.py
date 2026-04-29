@@ -191,7 +191,7 @@ def assemble_balanced_datasate():
     all_left_names = os.listdir('media\\onlycategory1\\')
     all_right_names = os.listdir('media\\onlycategory2\\')
     
-    target_folder = 'media\\balanced_dataset\\'
+    target_folder = 'media\\amds_balanced_v2\\'
     
     minimum_length = min(len(all_picture_names), len(all_garbage_names), len(all_left_names), len(all_right_names))
     

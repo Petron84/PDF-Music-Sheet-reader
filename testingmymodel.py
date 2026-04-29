@@ -19,7 +19,7 @@ model.eval()
 for param in model.parameters():
     param.requires_grad = False
     
-dir = 'media\\actionmodeldataset_v2'
+dir = 'media\\linenotes'
 files = os.listdir(dir)
 count=0
 for file in files:
@@ -40,17 +40,16 @@ for file in files:
         print(f"Warning: Model is guessing! Confidence is only {max_prob:.2f}")
     predicted_index = torch.argmax(probabilities, dim=1).item()
     print(predicted_index)
+        
     window_name = f"{predicted_index} : {max_prob:.2f}"
-    # cv.namedWindow(window_name, cv.WINDOW_NORMAL)
-    # cv.resizeWindow(window_name, 300, 300)
-    
-    
-    
-    # cv.imshow(window_name, img)
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
+
     if predicted_index == 3:
         count+=1
+        # cv.namedWindow(window_name, cv.WINDOW_NORMAL)
+        # cv.resizeWindow(window_name, 300, 300)
+        # cv.imshow(window_name, img)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
 print(f"Total count of predicted index 3: {count}")
     
 

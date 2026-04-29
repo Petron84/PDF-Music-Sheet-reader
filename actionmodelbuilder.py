@@ -45,7 +45,7 @@ def pad_and_resize_transform(img):
 
     return img
 class ActionModelDataset(Dataset):
-    def __init__(self, txt_file='actionlog.txt', img_dir='media\\actionmodeldataset_v2', transform=None):
+    def __init__(self, txt_file='balancedlog.txt', img_dir='media\\amds_balanced', transform=None):
         """
         Args:
             txt_file (string): Path to the txt file with 'filename,label'.
@@ -171,12 +171,12 @@ def train_action_model():
     # 4. Create DataLoaders
     train_loader = DataLoader(train_set, 
                               batch_size=32,
-                              sampler=getSampler(action_dataset,train_set),  # Use the custom sampler for class balancing 
-                              shuffle=False, 
+                            #   sampler=getSampler(action_dataset,train_set),  # Use the custom sampler for class balancing 
+                              shuffle=True, 
                               num_workers=0)
     val_loader = DataLoader(val_set, 
                             batch_size=32, 
-                            shuffle=False, 
+                            shuffle=True, 
                             num_workers=0)
     test_loader = DataLoader(test_set, 
                              batch_size=32, 
@@ -203,9 +203,9 @@ def train_action_model():
     # 5. Initialize Model, Loss, and Optimizer
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = ActionModel().to(device)
-    weights = torch.tensor([1.0, 4.2, 3.4, 4.5]).to(device)
-    criterion = torch.nn.CrossEntropyLoss(weight=weights)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+    # weights = torch.tensor([1.0, 4.2, 3.4, 4.5]).to(device)
+    criterion = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     
     # 6. Training Loop (Skeleton)
     num_epochs = 25
