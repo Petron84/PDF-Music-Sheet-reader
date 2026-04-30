@@ -4,7 +4,11 @@ import torch
 import torch.nn as nn
 import numpy as np
 import pandas as pd
+import matplotlib as plt
 from tqdm import tqdm
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from clefclassifier import ClefClassifier
 
 
 datacsv = pd.read_csv('media\\clefdata\\lines\\cleflabels.csv')
@@ -30,6 +34,8 @@ class ClefDataset(torch.utils.data.Dataset):
         img_path = self.img_dir + str(filenum) + '.png' # f'media\\clefdata\\lines\\{clefname}\\{filenum}.png'
         
         image = cv.imread(img_path, cv.IMREAD_GRAYSCALE)
+        height, _ = image.shape
+        image = image[:height, :height]
         image = cv.resize(image, (50, 50), interpolation=cv.INTER_NEAREST)
         image = image.astype(np.float32) / 255.0  # Normalize to [0, 1]
         image = np.expand_dims(image, axis=0)  # Add channel dimension
@@ -52,37 +58,6 @@ images, labels = next(iter(train_loader))
 print("Batch of images shape: ", images.shape)
 print("Batch of labels shape: ", labels.shape)
 print("Labels in this batch:", labels)
-
-class ClefClassifier(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-        self.extractor = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=3, padding=1),
-            nn.LeakyReLU(negative_slope=0.01),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(16, 32, kernel_size=3, padding=1),
-            nn.LeakyReLU(negative_slope=0.01),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.LeakyReLU(negative_slope=0.01), 
-            nn.MaxPool2d(2)
-        )
-
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(64 * 6 * 6, 128),
-            nn.LeakyReLU(negative_slope=0.01),
-            nn.Dropout(0.25),
-            nn.Linear(128, 2)
-        )
-    
-    def forward(self, x):
-        x = self.extractor(x)
-        x = self.classifier(x)
-        return x
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -120,6 +95,44 @@ for epoch in range(epochs):
     if(losses[-1] > (.99 * losses[-2])):
         print(f"Halting due to low loss decrease at epoch {epoch+1}")
         break
+
+model.eval()
+
+predictions = []
+
+with torch.no_grad():
+    for X_batch, _ in tqdm(test_loader, desc="Predicting"):
+        X_batch = X_batch.to(device)
+        logits = model(X_batch)
+        predictions.append(logits.cpu())
+predictions = torch.cat(predictions).numpy()
+
+y_true = []
+for _, y_batch in test_loader:
+    y_true.append(y_batch)
+y_true = torch.cat(y_true).numpy()
+
+print(y_true[:6])
+print(predictions[:6])
+
+
+print("mean squared error:")
+print(y_true[0])
+print(predictions[0])
+print(mean_squared_error(y_true, predictions))
+
+cm = confusion_matrix(y_true,predictions)
+
+disp = ConfusionMatrixDisplay(confusion_matrix = cm
+                              , display_labels=train_dataset.classes)
+
+flg, ax = plt.subplots(figsize=(8,8))
+disp.plot(ax=ax, cmap="Blues", xticks_rotation=45)
+plt.title("Conf")
+plt.tight_layout()
+plt.savefig("models/mininet-conf.png")
+plt.show()
+
 
 """
 

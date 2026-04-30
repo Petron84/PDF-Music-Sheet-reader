@@ -8,6 +8,7 @@ import torch.nn as nn
 import numpy as np
 # import matplotlib.pyplot as plt
 from actionmodelbuilder import ActionModel
+from clefclassifier import ClefClassifier
 
 
 
@@ -152,11 +153,45 @@ class LineProcessor():
         self._countclefs = 0
         self._splitLines()
 
-        for lineindex in range(len(self.individualLines)):
-            line = self.individualLines[lineindex]
-            path = 'media\\reallines\\' + self.imagepath + '_' + str(lineindex) + '.png'
-            cv.imwrite(path, line)
+        self.indLines_clefs = []
+        self._classifyLines()
+        self._checkmywork()
+
+    def _checkmywork(self):
+        for index in range(len(self.individualLines)):
+            label = 'treble'
+            if(self.indLines_clefs[index]):
+                label = 'bass'
+            cv.imshow(label, self.individualLines[index])
+            cv.waitKey(0)
+            cv.destroyAllWindows()
             
+    def _classifyLines(self):
+        # Actual implementation for identifying clef, finally
+        # Runs through entire set of individual lines for the image and assigns a clef to them
+        # using rudimentary neural network model
+        modelState = torch.load('mininet.pth', weights_only=False)
+        clefModel = ClefClassifier()
+        clefModel.load_state_dict(modelState)
+        clefModel.eval()
+        templines = []
+        for line in self.individualLines:
+            tempheight, _ = line.shape
+            image = line[:tempheight, :tempheight]
+            _, image = cv.threshold(image, 220, 255, cv.THRESH_BINARY)
+            image = cv.resize(line, (50, 50), interpolation=cv.INTER_NEAREST)
+            image = image.astype(np.float32) / 255.0
+            image = np.expand_dims(image, axis=0)
+            templines.append(image)
+        templines = np.array(templines)
+        with torch.no_grad():
+            result = clefModel(torch.tensor(templines))
+        for entry in result:
+            print(entry)
+            self.indLines_clefs.append(np.argmax(entry))
+            # 0 for treble, 1 for bass
+            
+
     
     def _identifyClef(self, lineImage):
         # Implementation for identifying clef
