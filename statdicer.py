@@ -176,13 +176,15 @@ class LineProcessor():
         clefModel.eval()
         templines = []
         for line in self.individualLines:
+
             tempheight, _ = line.shape
             image = line[:tempheight, :tempheight]
             _, image = cv.threshold(image, 220, 255, cv.THRESH_BINARY)
-            image = cv.resize(line, (50, 50), interpolation=cv.INTER_NEAREST)
+            image = cv.resize(image, (50, 50), interpolation=cv.INTER_NEAREST)
             image = image.astype(np.float32) / 255.0
             image = np.expand_dims(image, axis=0)
             templines.append(image)
+
         templines = np.array(templines)
         with torch.no_grad():
             result = clefModel(torch.tensor(templines))
