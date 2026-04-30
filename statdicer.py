@@ -15,9 +15,9 @@ from actionmodelbuilder import ActionModel
 
 class LineContour():
     def __init__(self, imagepath = 'media\\twinkle star.png'):
-        print(imagepath)
+        #print(imagepath)
         self.image =cv.imread(imagepath)
-        print("Original image shape: ", self.image.shape)
+        #print("Original image shape: ", self.image.shape)
         #self.image = self._resizetheimage(self.image)
         #print("Resized image shape: ", self.image.shape)
         self.imagepath = imagepath[6:-4] # removing the .png part of the path
@@ -69,9 +69,10 @@ class LineContour():
             currentindex = current[0] # moving the two pointers so that they point to the next sibling of the current one
             current = self.hierarchy[0][currentindex]
 
-            
+        if len(contourAreas)==0:
+            return lineContourIndeces # if there are no contours in that layer, then we will just return an empty list.
         avearageArea = sum(contourAreas)/len(contourAreas)
-        print("Average contour area is: ", avearageArea)
+        #print("Average contour area is: ", avearageArea)
         
         countBigContours =0
         
@@ -81,7 +82,7 @@ class LineContour():
                 lineContourIndeces.append((self.hierarchy[0][contourindexes[i]], contourindexes[i])) # adds them to my collection.
                 countBigContours+=1
      
-        print ("Count of big contours is: ", countBigContours)    
+        #print ("Count of big contours is: ", countBigContours)    
         
         #when it exits that loops, I will have visited all contours in that layer and collected them.
         # print("Line contour indeces are: ", lineContourIndeces)
@@ -95,9 +96,9 @@ class LineContour():
             # print("Processing line contour at index: ", self.contours[line[1]])
             x,y,w,h = cv.boundingRect(self.contours[line[1]])
             lineImage = self.image[y:y+h, x:x+w]
-            cv.imwrite(f'media\\lines\\{count}_{self.imagepath}.png', lineImage)
-            print(os.path.exists(f'media\\lines\\{count}_{self.imagepath}.png'))
-            LineProcessor(f'media\\lines\\{count}_{self.imagepath}.png')
+            cv.imwrite(f'media\\lines\\{self.imagepath[3:]}_{count}.png', lineImage)
+            #print(os.path.exists(f'media\\lines\\{self.imagepath[3:]}_{count}.png'))
+            LineProcessor(f'media\\lines\\{self.imagepath[3:]}_{count}.png')
             count+=1
             # cv.imshow('Line Image', lineImage)
             # cv.waitKey(0)
@@ -106,7 +107,7 @@ class LineContour():
     
     
     def drawFirstLayerContours(self):
-        print("The index count is ", len(self.lineContourIndeces))
+        #print("The index count is ", len(self.lineContourIndeces))
         for line in self.lineContourIndeces:
             cv.drawContours(self.image, self.contours, line[1], (0,0,255),2)
         # cv.imshow('Contours', self.image)
@@ -132,6 +133,8 @@ class LineContour():
     
 class LineProcessor():
     def __init__(self, imagepath = 'media\\lines\\treble_twinkle star_5.png'):
+        #media\lines\
+        #media\ds
         # self.model = ActionModel()
         # self.model.load_state_dict(torch.load('models\\action_model.pth', weights_only=True))
         # self.model.eval()
@@ -143,11 +146,17 @@ class LineProcessor():
         #self.clef = self._identifyClef(self.lineImage)
         #self.imagepath = self.clef + "_" + self.imagepath
         self.height, self.width = self.lineImage.shape
-        print('LineProcessor: ',self.imagepath)
+        #print('LineProcessor: ',self.imagepath)
         #self.clefsize, self.clefsignatures = self._identifyClefSignature(self.lineImage)
         self.individualLines = []
         self._countclefs = 0
         self._splitLines()
+
+        for lineindex in range(len(self.individualLines)):
+            line = self.individualLines[lineindex]
+            path = 'media\\reallines\\' + self.imagepath + '_' + str(lineindex) + '.png'
+            cv.imwrite(path, line)
+            
     
     def _identifyClef(self, lineImage):
         # Implementation for identifying clef
@@ -294,7 +303,7 @@ class LineProcessor():
             notecount +=1
             self._countclefs+=1
             cv.imwrite(f'media\\actionmodeldataset_v3\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
-            print(f'media\\actionmodeldataset_v3\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
+            #print(f'media\\actionmodeldataset_v3\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
     def _lineSeparatorConvolution(self, line):
         """ This method incorporate the model.
         This method will perform a line separation convolution on the line image."""
@@ -321,8 +330,8 @@ class LineProcessor():
             lineImage = line[:, start:end]
             notecount +=1
             self._countclefs+=1
-            cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
-            print(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
+            #cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
+            #print(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
         
         
     def _getRanges(self, opimage, startingPoint):
@@ -469,12 +478,12 @@ class LineProcessor():
             if 0 in roi:
                 presence.append(True) # if there is a non white pixel, then there is a note in that sliver
             
-            print("Presence is: ", presence)
+            #print("Presence is: ", presence)
             if len(presence)>0:
                 notecount +=1
                 sliverimage = thresh_img[:, sliver:sliver+sliver_width]
-                cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
-                print(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png')
+                #cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
+                #print(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png')
             
             sliver += sliver_width # move the sliver to the right by the width of the white space.
             
@@ -509,12 +518,12 @@ class LineProcessor():
             if 0 in roi:
                 presence.append(True) # if there is a non white pixel, then there is a note in that sliver
             
-            print("Presence is: ", presence)
+            #print("Presence is: ", presence)
             if len(presence)>0:
                 notecount +=1
                 sliverimage = thresh_img[:, sliver:sliver+sliver_width]
-                cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
-                print(f'media\\linenotes\\{notecount}_{self.imagepath}.png')
+                #cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
+                #print(f'media\\linenotes\\{notecount}_{self.imagepath}.png')
             
             sliver += sliver_width # move the sliver to the right by the width of the white space.
         
