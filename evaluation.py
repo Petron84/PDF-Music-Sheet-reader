@@ -115,3 +115,35 @@ if __name__ == "__main__":
     for note_image in note_images:
         print(note_image)
         print("\n")
+
+# store the data structure somewhere (like in a file) for other programs to use 
+# (e.g. for pitch detection, or for later stages in the pipeline)
+folder_name = "note_data"
+if not os.path.exists(folder_name):
+    os.makedirs(folder_name)
+
+#chat gpt, can we save the note_images without using torch or pickle? maybe we can save them as json files or something like that?
+import json
+def save_note_images(note_images, folder_name):
+
+    # create one json file to dump all the note_images data into it
+    data_list = []
+
+    for note_image in note_images:
+        data = {
+            "image_name": note_image.image_name,
+            "image_path": note_image.image_path,
+            "type": note_image.type,
+            "confidence": note_image.confidence,
+            "pitch": note_image.pitch,
+            "staff_type": note_image.staff_type,
+            "staff_idx": note_image.staff_idx,
+            "note_idx": note_image.note_idx
+        }
+        data_list.append(data)
+    
+    with open(os.path.join(folder_name, "note_images.json"), "w") as f:
+        json.dump(data_list, f, indent=4)
+        
+# save the note_images to json files
+save_note_images(note_images, folder_name)

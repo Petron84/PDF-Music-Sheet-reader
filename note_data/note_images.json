@@ -1,0 +1,72 @@
+[
+    {
+        "image_name": "test1.png",
+        "image_path": "testnotes\\test1.png",
+        "type": "16th Notes",
+        "confidence": 0.7855,
+        "pitch": "C5",
+        "staff_type": null,
+        "staff_idx": null,
+        "note_idx": null
+    },
+    {
+        "image_name": "test2.png",
+        "image_path": "testnotes\\test2.png",
+        "type": "Quarter Note",
+        "confidence": 0.999,
+        "pitch": "E5",
+        "staff_type": null,
+        "staff_idx": null,
+        "note_idx": null
+    },
+    {
+        "image_name": "test3.png",
+        "image_path": "testnotes\\test3.png",
+        "type": "16th Notes",
+        "confidence": 1.0,
+        "pitch": "A4",
+        "staff_type": null,
+        "staff_idx": null,
+        "note_idx": null
+    },
+    {
+        "image_name": "test4.png",
+        "image_path": "testnotes\\test4.png",
+        "type": "Quarter Note",
+        "confidence": 0.4092,
+        "pitch": "F4",
+        "staff_type": null,
+        "staff_idx": null,
+        "note_idx": null
+    },
+    {
+        "image_name": "test5.png",
+        "image_path": "testnotes\\test5.png",
+        "type": "Whole Notes",
+        "confidence": 0.9901,
+        "pitch": null,
+        "staff_type": null,
+        "staff_idx": null,
+        "note_idx": null
+    },
+    {
+        "image_name": "test6.png",
+        "image_path": "testnotes\\test6.png",
+        "type": "Quarter Note",
+        "confidence": 0.9892,
+        "pitch": "A4",
+        "staff_type": null,
+        "staff_idx": null,
+        "note_idx": null
+    },
+    {
+        "image_name": "test7.png",
+        "image_path": "testnotes\\test7.png",
+        "type": "8th Note",
+        "confidence": 1.0,
+        "pitch": null,
+        "staff_type": null,
+        "staff_idx": null,
+        "note_idx": null
+    }
+]
