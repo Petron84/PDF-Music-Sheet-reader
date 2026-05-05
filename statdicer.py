@@ -8,7 +8,7 @@ import torch.nn as nn
 import numpy as np
 # import matplotlib.pyplot as plt
 from actionmodelbuilder import ActionModel
-from clefclassifier import ClefClassifier
+from models.clefclassifier import ClefClassifier
 
 
 
@@ -155,22 +155,12 @@ class LineProcessor():
 
         self.indLines_clefs = []
         self._classifyLines()
-        self._checkmywork()
-
-    def _checkmywork(self):
-        for index in range(len(self.individualLines)):
-            label = 'treble'
-            if(self.indLines_clefs[index]):
-                label = 'bass'
-            cv.imshow(label, self.individualLines[index])
-            cv.waitKey(0)
-            cv.destroyAllWindows()
             
     def _classifyLines(self):
         # Actual implementation for identifying clef, finally
         # Runs through entire set of individual lines for the image and assigns a clef to them
         # using rudimentary neural network model
-        modelState = torch.load('mininet.pth', weights_only=False)
+        modelState = torch.load('models\\mininet.pth', weights_only=False)
         clefModel = ClefClassifier()
         clefModel.load_state_dict(modelState)
         clefModel.eval()

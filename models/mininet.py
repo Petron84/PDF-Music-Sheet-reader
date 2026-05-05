@@ -8,7 +8,7 @@ import matplotlib as plt
 from tqdm import tqdm
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from clefclassifier import ClefClassifier
+from models.clefclassifier import ClefClassifier
 
 
 datacsv = pd.read_csv('media\\clefdata\\lines\\cleflabels.csv')
