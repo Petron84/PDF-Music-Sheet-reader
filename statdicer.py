@@ -8,6 +8,7 @@ import torch.nn as nn
 import numpy as np
 # import matplotlib.pyplot as plt
 from actionmodelbuilder import ActionModel, inference_transforms
+from models.clefclassifier import ClefClassifier
 
 
 
@@ -15,9 +16,9 @@ from actionmodelbuilder import ActionModel, inference_transforms
 
 class LineContour():
     def __init__(self, imagepath = 'media\\twinkle star.png'):
-        print(imagepath)
+        #print(imagepath)
         self.image =cv.imread(imagepath)
-        print("Original image shape: ", self.image.shape)
+        #print("Original image shape: ", self.image.shape)
         #self.image = self._resizetheimage(self.image)
         #print("Resized image shape: ", self.image.shape)
         self.imagepath = imagepath[6:-4] # removing the .png part of the path
@@ -69,9 +70,10 @@ class LineContour():
             currentindex = current[0] # moving the two pointers so that they point to the next sibling of the current one
             current = self.hierarchy[0][currentindex]
 
-            
+        if len(contourAreas)==0:
+            return lineContourIndeces # if there are no contours in that layer, then we will just return an empty list.
         avearageArea = sum(contourAreas)/len(contourAreas)
-        print("Average contour area is: ", avearageArea)
+        #print("Average contour area is: ", avearageArea)
         
         countBigContours =0
         
@@ -81,7 +83,7 @@ class LineContour():
                 lineContourIndeces.append((self.hierarchy[0][contourindexes[i]], contourindexes[i])) # adds them to my collection.
                 countBigContours+=1
      
-        print ("Count of big contours is: ", countBigContours)    
+        #print ("Count of big contours is: ", countBigContours)    
         
         #when it exits that loops, I will have visited all contours in that layer and collected them.
         # print("Line contour indeces are: ", lineContourIndeces)
@@ -95,9 +97,9 @@ class LineContour():
             # print("Processing line contour at index: ", self.contours[line[1]])
             x,y,w,h = cv.boundingRect(self.contours[line[1]])
             lineImage = self.image[y:y+h, x:x+w]
-            cv.imwrite(f'media\\lines\\{count}_{self.imagepath}.png', lineImage)
-            print(os.path.exists(f'media\\lines\\{count}_{self.imagepath}.png'))
-            LineProcessor(f'media\\lines\\{count}_{self.imagepath}.png')
+            cv.imwrite(f'media\\lines\\{self.imagepath[3:]}_{count}.png', lineImage)
+            #print(os.path.exists(f'media\\lines\\{self.imagepath[3:]}_{count}.png'))
+            LineProcessor(f'media\\lines\\{self.imagepath[3:]}_{count}.png')
             count+=1
             # cv.imshow('Line Image', lineImage)
             # cv.waitKey(0)
@@ -106,7 +108,7 @@ class LineContour():
     
     
     def drawFirstLayerContours(self):
-        print("The index count is ", len(self.lineContourIndeces))
+        #print("The index count is ", len(self.lineContourIndeces))
         for line in self.lineContourIndeces:
             cv.drawContours(self.image, self.contours, line[1], (0,0,255),2)
         # cv.imshow('Contours', self.image)
@@ -143,11 +145,43 @@ class LineProcessor():
         #self.clef = self._identifyClef(self.lineImage)
         #self.imagepath = self.clef + "_" + self.imagepath
         self.height, self.width = self.lineImage.shape
-        print('LineProcessor: ',self.imagepath)
+        #print('LineProcessor: ',self.imagepath)
         #self.clefsize, self.clefsignatures = self._identifyClefSignature(self.lineImage)
         self.individualLines = []
         self._countclefs = 0
         self._splitLines()
+
+        self.indLines_clefs = []
+        self._classifyLines()
+            
+    def _classifyLines(self):
+        # Actual implementation for identifying clef, finally
+        # Runs through entire set of individual lines for the image and assigns a clef to them
+        # using rudimentary neural network model
+        modelState = torch.load('models\\mininet.pth', weights_only=False)
+        clefModel = ClefClassifier()
+        clefModel.load_state_dict(modelState)
+        clefModel.eval()
+        templines = []
+        for line in self.individualLines:
+
+            tempheight, _ = line.shape
+            image = line[:tempheight, :tempheight]
+            _, image = cv.threshold(image, 220, 255, cv.THRESH_BINARY)
+            image = cv.resize(image, (50, 50), interpolation=cv.INTER_NEAREST)
+            image = image.astype(np.float32) / 255.0
+            image = np.expand_dims(image, axis=0)
+            templines.append(image)
+
+        templines = np.array(templines)
+        with torch.no_grad():
+            result = clefModel(torch.tensor(templines))
+        for entry in result:
+            print(entry)
+            self.indLines_clefs.append(np.argmax(entry))
+            # 0 for treble, 1 for bass
+            
+
     
     def _identifyClef(self, lineImage):
         # Implementation for identifying clef
@@ -294,7 +328,7 @@ class LineProcessor():
             notecount +=1
             self._countclefs+=1
             cv.imwrite(f'media\\actionmodeldataset_v3\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
-            print(f'media\\actionmodeldataset_v3\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
+            #print(f'media\\actionmodeldataset_v3\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
     def _lineSeparatorConvolution(self, line):
         """ This method incorporate the model.
         This method will perform a line separation convolution on the line image."""
@@ -503,12 +537,12 @@ class LineProcessor():
             if 0 in roi:
                 presence.append(True) # if there is a non white pixel, then there is a note in that sliver
             
-            print("Presence is: ", presence)
+            #print("Presence is: ", presence)
             if len(presence)>0:
                 notecount +=1
                 sliverimage = thresh_img[:, sliver:sliver+sliver_width]
-                cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
-                print(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png')
+                #cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
+                #print(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png')
             
             sliver += sliver_width # move the sliver to the right by the width of the white space.
             
@@ -543,12 +577,12 @@ class LineProcessor():
             if 0 in roi:
                 presence.append(True) # if there is a non white pixel, then there is a note in that sliver
             
-            print("Presence is: ", presence)
+            #print("Presence is: ", presence)
             if len(presence)>0:
                 notecount +=1
                 sliverimage = thresh_img[:, sliver:sliver+sliver_width]
-                cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
-                print(f'media\\linenotes\\{notecount}_{self.imagepath}.png')
+                #cv.imwrite(f'PDF-Music-Sheet-reader\\media\\linenotes\\{notecount}_{self.imagepath}.png', sliverimage)
+                #print(f'media\\linenotes\\{notecount}_{self.imagepath}.png')
             
             sliver += sliver_width # move the sliver to the right by the width of the white space.
         
