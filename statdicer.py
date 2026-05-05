@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 # import matplotlib.pyplot as plt
-from actionmodelbuilder import ActionModel
+from actionmodelbuilder import ActionModel, inference_transforms
 from models.clefclassifier import ClefClassifier
 
 
@@ -134,11 +134,9 @@ class LineContour():
     
 class LineProcessor():
     def __init__(self, imagepath = 'media\\lines\\treble_twinkle star_5.png'):
-        #media\lines\
-        #media\ds
-        # self.model = ActionModel()
-        # self.model.load_state_dict(torch.load('models\\action_model.pth', weights_only=True))
-        # self.model.eval()
+        self.model = ActionModel()
+        self.model.load_state_dict(torch.load('models\\action_model.pth', weights_only=True))
+        self.model.eval()
         self.lineImage = cv.imread(imagepath, cv.IMREAD_GRAYSCALE)
         self.colorImage = cv.imread(imagepath) # this is the color version of the line image, we will use it to draw on it and visualize our results.
         self.imagepath = imagepath[12:-4] # removing the .png part of
@@ -334,6 +332,7 @@ class LineProcessor():
     def _lineSeparatorConvolution(self, line):
         """ This method incorporate the model.
         This method will perform a line separation convolution on the line image."""
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         clefofline = self._identifyClef(line)
         clefsize, clefsignatures = self._identifyClefSignature(line)
         
@@ -353,12 +352,45 @@ class LineProcessor():
         opimage = 255 - vertimg # this is the image after inverting the colors. The idea is that the lines will be detected by the kernels and will be white in vertimg, so when we invert it, they will be black and the notes will be white.
         x_ranges = self._getRanges(opimage, clefsize+clefsignatures) # this will get the x ranges of the lines. We will use these to split the line into individual lines.
         notecount = 0
+        lastend = 0
         for (start, end) in x_ranges:
+            if lastend > start:
+                continue
             lineImage = line[:, start:end]
             notecount +=1
-            self._countclefs+=1
-            #cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
-            #print(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
+            img_tensor = inference_transforms(lineImage).unsqueeze(0).to(device)
+            logits = self.model(img_tensor)
+            probabilities = torch.nn.functional.softmax(logits, dim=1)
+            predicted_index = torch.argmax(probabilities, dim=1).item()
+            
+            if predicted_index ==2:
+                while (not (predicted_index == 0 or predicted_index ==3)) and end<self.width:
+                    print("stuck at 2")
+                    end += 5
+                    lineImage = line[:, start: end]
+                    img_tensor = inference_transforms(lineImage).unsqueeze(0).to(device)
+                    logits = self.model(img_tensor)
+                    probabilities = torch.nn.functional.softmax(logits, dim=1)
+                    predicted_index = torch.argmax(probabilities, dim=1).item()
+                    
+            if predicted_index == 1:
+                while (not (predicted_index == 0 or predicted_index ==3)) and start>0:
+                    print("stuck at 1")
+                    start -= 5
+                    lineImage = line[:, start: end]
+                    img_tensor = inference_transforms(lineImage).unsqueeze(0).to(device)
+                    logits = self.model(img_tensor)
+                    probabilities = torch.nn.functional.softmax(logits, dim=1)
+                    predicted_index = torch.argmax(probabilities, dim=1).item()
+            if predicted_index == 0:
+                print("garbage")
+                lastend = end
+                continue
+            if predicted_index == 3:
+                lastend = end
+                self._countclefs+=1
+                cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
+                print(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
         
         
     def _getRanges(self, opimage, startingPoint):
