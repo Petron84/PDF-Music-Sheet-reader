@@ -6,7 +6,7 @@ import numpy as np
 from legacycode.geminicode import geminihelper
 from statdicer import LineContour
 import legacycode.garbagemodeltruthbuilder as garbagemodeltruthbuilder
-import legacycode.actionmodelbuilder as actionmodelbuilder
+import actionmodelbuilder as actionmodelbuilder
 
 def readMyPic():
     img = cv.imread('media\\blanktreble.png')
