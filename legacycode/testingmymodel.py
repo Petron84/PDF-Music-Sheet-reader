@@ -2,7 +2,7 @@ import os
 
 import torch
 import cv2 as cv
-from actionmodelbuilder import ActionModel, pad_and_resize_transform,inference_transforms  # Import your architecture
+from legacycode.actionmodelbuilder import ActionModel, pad_and_resize_transform,inference_transforms  # Import your architecture
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -3,10 +3,10 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-from geminicode import geminihelper
+from legacycode.geminicode import geminihelper
 from statdicer import LineContour
-import garbagemodeltruthbuilder
-import actionmodelbuilder
+import legacycode.garbagemodeltruthbuilder as garbagemodeltruthbuilder
+import legacycode.actionmodelbuilder as actionmodelbuilder
 
 def readMyPic():
     img = cv.imread('media\\blanktreble.png')
