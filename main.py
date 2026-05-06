@@ -38,11 +38,12 @@ if __name__ == "__main__":
     #imagepath ='media\\twinkle star.png'
     # imagepath ="media\\basetemplate.png"
     # firstContours(imagepath)
-    imagepath = "media\\pdf2png(1).png"
+    # imagepath = "media\\pdf2png(1).png"
     #imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\Enfantilligis_2.png"
+    imagepath = "media\Method for the Cornet. First Studies pg 7 (1).png"
     # imagepath = "media\\pdf2png(3).png"
     #imagepath = "media\\battle.png"
     #imagepath = "media\\Toccatina.png"
