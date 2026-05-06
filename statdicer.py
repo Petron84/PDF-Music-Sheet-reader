@@ -97,9 +97,9 @@ class LineContour():
             # print("Processing line contour at index: ", self.contours[line[1]])
             x,y,w,h = cv.boundingRect(self.contours[line[1]])
             lineImage = self.image[y:y+h, x:x+w]
-            cv.imwrite(f'media\\lines\\{self.imagepath[3:]}_{count}.png', lineImage)
+            cv.imwrite(f'media\\lines\\{count}_{self.imagepath[3:]}.png', lineImage)
             #print(os.path.exists(f'media\\lines\\{self.imagepath[3:]}_{count}.png'))
-            LineProcessor(f'media\\lines\\{self.imagepath[3:]}_{count}.png')
+            LineProcessor(f'media\\lines\\{count}_{self.imagepath[3:]}.png')
             count+=1
             # cv.imshow('Line Image', lineImage)
             # cv.waitKey(0)
@@ -133,7 +133,8 @@ class LineContour():
     
     
 class LineProcessor():
-    def __init__(self, imagepath = 'media\\lines\\treble_twinkle star_5.png'):
+    def __init__(self, imagepath):
+        print(imagepath)
         self.model = ActionModel()
         self.model.load_state_dict(torch.load('models\\action_model.pth', weights_only=True))
         self.model.eval()
@@ -153,6 +154,7 @@ class LineProcessor():
 
         self.indLines_clefs = []
         self._classifyLines()
+        self.associateWithClef()
             
     def _classifyLines(self):
         # Actual implementation for identifying clef, finally
@@ -269,23 +271,40 @@ class LineProcessor():
         else:
             self.individualLines.append(thresh_img) # if there is only one line, then we will just add the whole line image to our individual lines collection.
             
+        # linedifferentiator = 1
+        # # print ("Number of individual lines is: ", len(self.individualLines))
+        # for line in self.individualLines:
+        #     # cv.imshow('Line Image', line)
+        #     # cv.waitKey(0)
+        #     # cv.destroyAllWindows()
+        #     self._lineSeparatorConvolution(line)
+        #     #Call these lines in order to build a dataset:
+        #     # self._lineSeparatorConvolution_dataset(line)
+        #     # for i in range(5,20): #images will range between 25 and 100 wide
+        #     #     x_increment = i * 5
+        #     #     self._randomSeparator(line, x_increment, i,linedifferentiator)
+        #     # linedifferentiator+=1
+            
+        #     # self._horizontalAnalysis(line)
+        #     # self._lookfornotes(corners, max_indices, line , 10)
+            
+    def associateWithClef(self):
         linedifferentiator = 1
-        # print ("Number of individual lines is: ", len(self.individualLines))
-        for line in self.individualLines:
-            # cv.imshow('Line Image', line)
-            # cv.waitKey(0)
-            # cv.destroyAllWindows()
-            self._lineSeparatorConvolution(line)
-            #Call these lines in order to build a dataset:
-            # self._lineSeparatorConvolution_dataset(line)
-            # for i in range(5,20): #images will range between 25 and 100 wide
-            #     x_increment = i * 5
-            #     self._randomSeparator(line, x_increment, i,linedifferentiator)
-            # linedifferentiator+=1
-            
-            # self._horizontalAnalysis(line)
-            # self._lookfornotes(corners, max_indices, line , 10)
-            
+        for i in range(len(self.individualLines)):
+            clefofline = self.indLines_clefs[i]
+            if clefofline == 0:
+                clefofline = 'treble'
+            elif clefofline == 1:
+                clefofline = 'bass'
+                
+            else: 
+                print('There is an error identifying the clef.')
+            lineofinterest = self.individualLines[i]
+            self._lineSeparatorConvolution(lineofinterest,clefofline)
+        
+
+   
+   
             
     def _randomSeparator(self, line, x_increment,iteration,linedifferentiator):
         """This method will cut the image randomly"""
@@ -329,11 +348,11 @@ class LineProcessor():
             self._countclefs+=1
             cv.imwrite(f'media\\actionmodeldataset_v3\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
             #print(f'media\\actionmodeldataset_v3\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
-    def _lineSeparatorConvolution(self, line):
+    def _lineSeparatorConvolution(self, line, clefofline):
         """ This method incorporate the model.
         This method will perform a line separation convolution on the line image."""
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        clefofline = self._identifyClef(line)
+        # clefofline = self._identifyClef(line)
         clefsize, clefsignatures = self._identifyClefSignature(line)
         
         # This is the kernel for the vertical character
@@ -383,7 +402,7 @@ class LineProcessor():
                     probabilities = torch.nn.functional.softmax(logits, dim=1)
                     predicted_index = torch.argmax(probabilities, dim=1).item()
             if predicted_index == 0:
-                print("garbage")
+                # print("garbage")
                 lastend = end
                 continue
             if predicted_index == 3:
