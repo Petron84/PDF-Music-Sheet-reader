@@ -143,8 +143,8 @@ def train_action_model():
 
     # Initialize the dataset
     action_dataset = ActionModelDataset(
-        txt_file='actionlog.txt', 
-        img_dir='media\\actionmodeldataset_v2',
+        txt_file='balancedlog.txt', 
+        img_dir='media\\amds_balanced_v2',
         transform=data_transforms
     )
     
