@@ -1,5 +1,3 @@
-/media/ds
-/media/linenotes
-/media/lines
-/media
-/media
+.gitinore
+__pycache__/
+venv/
