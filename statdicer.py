@@ -397,7 +397,7 @@ class LineProcessor():
         notecount = 0
         lastend = 0
         skipcount = 0
-        count = 0
+        
         for (start, end) in x_ranges:
             if lastend > start:
                 print("continued")

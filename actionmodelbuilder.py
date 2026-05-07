@@ -118,11 +118,12 @@ class ActionModel(torch.nn.Module):
         self.conv1 = torch.nn.Conv2d(1, 16, kernel_size=3, padding=1) 
         self.conv2 = torch.nn.Conv2d(16, 32, kernel_size=3, padding=1)
         self.flatten = torch.nn.Flatten(start_dim=1)
-        self.fc1 = torch.nn.Linear(16 * 198 * 15, 64)   
-        self.fc5 = torch.nn.Linear(64, 4) 
+        self.fc1 = torch.nn.Linear(16 * 198 * 15, 64) 
+        self.fc2 = torch.nn.Linear(64, 32)  
+        self.fc5 = torch.nn.Linear(32, 4) 
         self.pool_one = torch.nn.MaxPool2d((1,2),stride=2)
         self.pool_two = torch.nn.MaxPool2d(2, stride=2)
-        self.activation = torch.nn.Sigmoid()
+        self.activation = torch.nn.ReLU()
 
     def forward(self, x):
         x = self.activation(self.conv1(x))
@@ -131,6 +132,8 @@ class ActionModel(torch.nn.Module):
         x = self.pool_one(x)
         x = self.flatten(x)
         x = self.activation(self.fc1(x))
+        x = self.dropout(x)
+        x = self.activation(self.fc2(x))
         x = self.dropout(x)
         x = self.fc5(x)
         return x
