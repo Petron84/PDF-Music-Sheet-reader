@@ -39,7 +39,7 @@ if __name__ == "__main__":
     # imagepath ="media\\basetemplate.png"
     # firstContours(imagepath)
     # imagepath = "media\\pdf2png(1).png"
-    #imagepath = "media\\pdf2png(2).png"
+    imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\Enfantilligis_2.png"
@@ -49,6 +49,6 @@ if __name__ == "__main__":
     # imagepath = "media\\pdf2png(3).png"
     #imagepath = "media\\battle.png"
     #imagepath = "media\\Toccatina.png"
-    # lineContour = LineContour(imagepath)
-    actionmodelbuilder.train_action_model()
+    lineContour = LineContour(imagepath)
+    # actionmodelbuilder.train_action_model()
 
