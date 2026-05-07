@@ -20,7 +20,7 @@ def pad_and_resize_transform(img):
         img = np.array(img)
 
     target_height = 395
-    target_width = 76
+    target_width = 60
     h, w = img.shape[:2]
 
     # 1. Resize width specifically to 76
@@ -29,9 +29,13 @@ def pad_and_resize_transform(img):
         # Use AREA for shrinking to keep notes clear
         img = cv2.resize(img, (target_width, h), interpolation=cv2.INTER_AREA)
     else:
-        # Use LINEAR or CUBIC for stretching to avoid blockiness
-        img = cv2.resize(img, (target_width, h), interpolation=cv2.INTER_LINEAR)
-
+        padding_needed = target_width - w
+        img = cv2.copyMakeBorder(
+            img, 
+            0, 0, 0, padding_needed, # top, bottom, left, right
+            cv2.BORDER_CONSTANT, 
+            value=[255, 255, 255]
+        )
     # 2. Pad height from the top to 395
     # Re-check height after width resize
     h, w = img.shape[:2]
@@ -109,36 +113,22 @@ def getSampler(action_dataset,train_set):
     
 class ActionModel(torch.nn.Module):
     def __init__(self):
-        super(ActionModel, self).__init__()
+        super().__init__()
         self.dropout = torch.nn.Dropout(p=0.2)
         self.conv1 = torch.nn.Conv2d(1, 16, kernel_size=3, padding=1) 
         self.conv2 = torch.nn.Conv2d(16, 32, kernel_size=3, padding=1)
-        self.conv3 = torch.nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        #self.conv4 = torch.nn.Conv2d(256, 512, kernel_size=3, padding=1)
-        self.adaptive_pool = torch.nn.AdaptiveAvgPool2d((395, 1))  # Ensure output is (128, 24, 5) regardless of input size
-        self.fc1 = torch.nn.Linear(64 * 395 * 1, 64)  
-        self.fc2 = torch.nn.Linear(64, 32) 
-        #self.fc3 = torch.nn.Linear(128, 128) 
-        #self.fc4 = torch.nn.Linear(128, 128)
-        self.fc5 = torch.nn.Linear(32, 4) 
+        self.flattener = torch.flatten(start_dim=1)
+        self.fc1 = torch.nn.Linear(32 * 395 * 60, 64)   
+        self.fc5 = torch.nn.Linear(64, 4) 
         self.pool = torch.nn.MaxPool2d((1,2), stride=2)
+        self.activation = torch.nn.Sigmoid()
 
     def forward(self, x):
-        x = torch.nn.functional.leaky_relu(self.conv1(x))
-        x = self.pool(x)  # Reduce spatial dimensions by half
-        x = torch.nn.functional.leaky_relu(self.conv2(x))
-        # x = self.pool(x)  # Reduce spatial dimensions by half
-        x = torch.nn.functional.leaky_relu(self.conv3(x))
-        #x = self.pool(x)  # Reduce spatial dimensions by half
-        #x = torch.nn.functional.leaky_relu(self.conv4(x))
-        x = self.adaptive_pool(x)  # Ensure consistent output size
-        x = x.view(-1, 64 * 395 * 1)  # Flatten
-        x = torch.nn.functional.leaky_relu(self.fc1(x))
+        x = self.activation(self.conv1(x))
+        x = self.activation(self.conv2(x))
+        x = self.flattener(x)
+        x = self.activation(self.fc1(x))
         x = self.dropout(x)
-        x = torch.nn.functional.leaky_relu(self.fc2(x))
-        x = self.dropout(x)
-        # x = torch.nn.functional.leaky_relu(self.fc3(x))
-        # x = torch.nn.functional.leaky_relu(self.fc4(x))
         x = self.fc5(x)
         return x
 
@@ -147,7 +137,6 @@ def train_action_model():
     data_transforms = transforms.Compose([
         pad_and_resize_transform,  # Custom function to pad and resize using OpenCV
         transforms.ToPILImage(),
-        # transforms.Resize((395, 169)), # Ensuring all images match your CNN input
         transforms.Grayscale(num_output_channels=1),
         transforms.ToTensor()
     ])
