@@ -19,7 +19,7 @@ def pad_and_resize_transform(img):
     if not isinstance(img, np.ndarray):
         img = np.array(img)
 
-    target_height = 395
+    target_height = 396
     target_width = 60
     h, w = img.shape[:2]
 
@@ -36,7 +36,7 @@ def pad_and_resize_transform(img):
             cv2.BORDER_CONSTANT, 
             value=[255, 255, 255]
         )
-    # 2. Pad height from the top to 395
+    # 2. Pad height from the top to 396
     # Re-check height after width resize
     h, w = img.shape[:2]
     if h < target_height:
@@ -117,16 +117,19 @@ class ActionModel(torch.nn.Module):
         self.dropout = torch.nn.Dropout(p=0.2)
         self.conv1 = torch.nn.Conv2d(1, 16, kernel_size=3, padding=1) 
         self.conv2 = torch.nn.Conv2d(16, 32, kernel_size=3, padding=1)
-        self.flattener = torch.flatten(start_dim=1)
-        self.fc1 = torch.nn.Linear(32 * 395 * 60, 64)   
+        self.flatten = torch.nn.Flatten(start_dim=1)
+        self.fc1 = torch.nn.Linear(16 * 198 * 15, 64)   
         self.fc5 = torch.nn.Linear(64, 4) 
-        self.pool = torch.nn.MaxPool2d((1,2), stride=2)
+        self.pool_one = torch.nn.MaxPool2d((1,2),stride=2)
+        self.pool_two = torch.nn.MaxPool2d(2, stride=2)
         self.activation = torch.nn.Sigmoid()
 
     def forward(self, x):
         x = self.activation(self.conv1(x))
+        x = self.pool_two(x)
         x = self.activation(self.conv2(x))
-        x = self.flattener(x)
+        x = self.pool_one(x)
+        x = self.flatten(x)
         x = self.activation(self.fc1(x))
         x = self.dropout(x)
         x = self.fc5(x)

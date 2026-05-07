@@ -43,11 +43,12 @@ if __name__ == "__main__":
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\pdf2png(2).png"
     # imagepath = "media\\Enfantilligis_2.png"
-    imagepath = "media\\skipping_13_4_bass.png"
-    img = cv.imread(imagepath)
-    print(img.shape)
+    # imagepath = "media\\skipping_13_4_bass.png"
+    # img = cv.imread(imagepath)
+    # print(img.shape)
     # imagepath = "media\\pdf2png(3).png"
     #imagepath = "media\\battle.png"
     #imagepath = "media\\Toccatina.png"
     # lineContour = LineContour(imagepath)
+    actionmodelbuilder.train_action_model()
 

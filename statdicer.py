@@ -370,17 +370,51 @@ class LineProcessor():
         
         opimage = 255 - vertimg # this is the image after inverting the colors. The idea is that the lines will be detected by the kernels and will be white in vertimg, so when we invert it, they will be black and the notes will be white.
         x_ranges = self._getRanges(opimage, clefsize+clefsignatures) # this will get the x ranges of the lines. We will use these to split the line into individual lines.
+        
+        (max_y, max_x) = line.shape
+        print("Horizontal analysis, max_y: ", max_y, "max_x: ", max_x)
+        x_buckets = [0] * max_x
+        
+        # Now we will go horizontal line by horizontal line and look for not 0 pixels
+        for x in range(max_x):
+            for y in range(max_y):
+                # print(f"line[{y}][{x}] = {line[y][x]}")
+                if line[y][x] != 255:
+                    x_buckets[x] += 1        
+        
+        # Let's find the min value in x buckets that is not zero
+        min_x = max_y
+        for i in range(len(x_buckets)):
+            if x_buckets[i] == 0:
+                continue
+            elif x_buckets[i]<min_x:
+                min_x = x_buckets[i]
+                
+        # add a 5 pixel buffer
+        min_x = min_x + 10
+        print("min is ", min_x)
+        
         notecount = 0
         lastend = 0
+        skipcount = 0
+        count = 0
         for (start, end) in x_ranges:
             if lastend > start:
+                print("continued")
                 continue
+            
+            while x_buckets[end]-min_x > 0:
+                end+=1           
             lineImage = line[:, start:end]
             notecount +=1
+            
             img_tensor = inference_transforms(lineImage).unsqueeze(0).to(device)
             logits = self.model(img_tensor)
             probabilities = torch.nn.functional.softmax(logits, dim=1)
             predicted_index = torch.argmax(probabilities, dim=1).item()
+            
+            count=0
+            
             
             if predicted_index ==2:
                 while (not (predicted_index == 0 or predicted_index ==3)) and end<self.width:
@@ -391,6 +425,8 @@ class LineProcessor():
                     logits = self.model(img_tensor)
                     probabilities = torch.nn.functional.softmax(logits, dim=1)
                     predicted_index = torch.argmax(probabilities, dim=1).item()
+                    cv.imwrite(f"media\\linenotes\\widen\\{self._linecountsubstring}_{count}_{clefofline}.png",lineImage)
+                    count +=1
                     
             if predicted_index == 1:
                 while (not (predicted_index == 0 or predicted_index ==3)) and start>0:
@@ -401,10 +437,15 @@ class LineProcessor():
                     logits = self.model(img_tensor)
                     probabilities = torch.nn.functional.softmax(logits, dim=1)
                     predicted_index = torch.argmax(probabilities, dim=1).item()
+                    cv.imwrite(f"media\\linenotes\\widen\\{self._linecountsubstring}_{count}_{clefofline}.png",lineImage)
+                    count +=1
             if predicted_index == 0:
-                # print("garbage")
+                skipcount+=1
+                print("skipped",skipcount)
+                cv.imwrite(f"media\\linenotes\\skip\\skipping_{count}_{skipcount}_{self._linecountsubstring}_{notecount}_{clefofline}.png",lineImage)
+                count +=1
                 lastend = end
-                continue
+                
             if predicted_index == 3:
                 lastend = end
                 self._countclefs+=1
