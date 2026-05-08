@@ -403,7 +403,7 @@ class LineProcessor():
                 print("continued")
                 continue
             
-            while (end<=max_x) and (x_buckets[end]-min_x > 0):
+            while (end<=len(x_buckets)) and (x_buckets[end]-min_x > 0):
                 end+=1           
             lineImage = line[:, start:end]
             notecount +=1
@@ -429,7 +429,7 @@ class LineProcessor():
                     count +=1
                     
             if predicted_index == 1:
-                while (not (predicted_index == 0 or predicted_index ==3)) and start>0:
+                while (not (predicted_index == 0 or predicted_index ==3)) and (start>lastend) and start>0:
                     print("stuck at 1")
                     start -= 5
                     lineImage = line[:, start: end]
@@ -451,6 +451,7 @@ class LineProcessor():
                 self._countclefs+=1
                 cv.imwrite(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png', lineImage)
                 print(f'media\\linenotes\\{self._linecountsubstring}_{notecount}_{clefofline}_{self._namesubstring}_v{self._countclefs}.png')
+            lastend = end
         
         
     def _getRanges(self, opimage, startingPoint):
