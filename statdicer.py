@@ -403,7 +403,7 @@ class LineProcessor():
                 print("continued")
                 continue
             
-            while (end<=len(x_buckets)) and (x_buckets[end]-min_x > 0):
+            while (end<len(x_buckets)) and (x_buckets[end]-min_x > 0):
                 end+=1           
             lineImage = line[:, start:end]
             notecount +=1

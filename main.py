@@ -39,5 +39,5 @@ if __name__ == "__main__":
     fetchsheet()
     imagepath = "media\\selected_sheet.png"
     lineContour = LineContour(imagepath)
-    # actionmodelbuilder.train_action_model()
+    
 

@@ -18,6 +18,7 @@ def pdf_request():
     return pdf_path
     
 def pdf_convert(pdf_path):
+     dpi=500
      folder = "media"
      os.makedirs(folder, exist_ok=True)
     
@@ -37,7 +38,7 @@ def pdf_convert(pdf_path):
      pdf = pdfium.PdfDocument(pdf_path)
 
      for i, page in enumerate(pdf):
-         image = page.render(scale=4).to_pil()
+         image = page.render(scale=dpi/72).to_pil()
          image.save(save_path)
          break
      print("Image Converted")
