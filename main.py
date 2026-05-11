@@ -37,7 +37,7 @@ def findFirstBlack(image,segment):
 if __name__ == "__main__":
     install()
     fetchsheet()
-    imagepath = "media\\twinkletwinklelittlestar.png"
+    imagepath = "media\\selected_sheet.png"
     lineContour = LineContour(imagepath)
     
 
