@@ -5,50 +5,54 @@ isolated_note_filter.py
 Scans a folder of "isolated note" images and removes any image that does NOT
 contain a valid notehead. Uses a three-stage pipeline calibrated on real samples:
 
-  Stage 1 — Width gate:      images narrower than WIDTH_THRESH px are "too thin"
-  Stage 2 — Erosion test:    images with no thick ink (erode r=4) have no notehead
-  Stage 3 — Blob analysis:   checks the largest ink blob for notehead-like properties
-               • minimum total area  (filters out dots, tiny arches)
-               • blob height ratio   (stem+notehead spans ~40% of image height)
-               • fill ratio          (stem makes it sparse; clefs/time-sigs are denser)
+Stage 1 — Width gate: images narrower than WIDTH_THRESH px are "too thin"
+Stage 2 — Erosion test: images with no thick ink (erode r=4) have no notehead
+Stage 3 — Blob analysis: checks the largest ink blob for notehead-like properties
+  • minimum total area (filters out dots, tiny arches)
+  • blob height ratio (stem+notehead spans ~40% of image height)
+  • fill ratio (stem makes it sparse; clefs/time-sigs are denser)
 
-Usage:
+CLI usage (unchanged):
     python isolated_note_filter.py --folder /path/to/images [options]
 
-Options:
-    --folder          Path to the image folder (required)
-    --width-thresh    Width (px) below which image is "too thin" (default: 35)
-    --erosion-radius  Erosion kernel radius in px (default: 4)
-    --min-area        Min largest-blob area in px² (default: 2000)
-    --min-h-ratio     Min blob_height/image_height ratio (default: 0.30)
-    --max-fill        Max fill ratio of largest blob bbox (default: 0.45)
-    --dry-run         Print what would be removed without deleting
-    --log             Path to save a CSV report (default: <folder>/filter_report.csv)
+Programmatic usage:
+    import isolated_note_filter as isonf
+    isonf("media/linenotes")
+    # or with optional overrides:
+    isonf("media/linenotes", dry_run=True, min_area=1500)
+
+Options / keyword arguments:
+    folder          Path to the image folder (required)
+    width_thresh    Width (px) below which image is "too thin" (default: 35)
+    erosion_radius  Erosion kernel radius in px (default: 4)
+    min_area        Min largest-blob area in px² (default: 2000)
+    min_h_ratio     Min blob_height/image_height ratio (default: 0.30)
+    max_fill        Max fill ratio of largest blob bbox (default: 0.45)
+    dry_run         Print what would be removed without deleting (default: False)
+    log             Path to save a CSV report (default: <folder>/filter_report.csv)
 """
 
 import argparse
 import csv
-import os
-import sys
 from pathlib import Path
 
 import cv2
 import numpy as np
 
 # ─── CALIBRATED DEFAULTS (from sample analysis) ─────────────────────────────
-WIDTH_THRESH    = 35     # px — images narrower than this are instantly flagged
-EROSION_RADIUS  = 4      # px — erosion kernel radius; kills thin lines/stems
-MIN_AREA        = 2000   # px² — minimum largest-blob area to be a note
-MIN_H_RATIO     = 0.30   # — blob height must be ≥30% of image height
-MAX_FILL        = 0.45   # — blob fill ratio must be <0.45 (clefs/time-sigs are denser)
-SUPPORTED_EXTS  = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
+WIDTH_THRESH   = 35     # px — images narrower than this are instantly flagged
+EROSION_RADIUS = 4      # px — erosion kernel radius; kills thin lines/stems
+MIN_AREA       = 2000   # px² — minimum largest-blob area to be a note
+MIN_H_RATIO    = 0.30   # — blob height must be ≥30% of image height
+MAX_FILL       = 0.45   # — blob fill ratio must be <0.45 (clefs/time-sigs are denser)
+SUPPORTED_EXTS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
 # ─────────────────────────────────────────────────────────────────────────────
 
 
 def preprocess(img_bgr: np.ndarray) -> np.ndarray:
     """Grayscale + ensure dark ink on white background."""
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-    if np.mean(gray) < 128:          # dark background → invert
+    if np.mean(gray) < 128:   # dark background → invert
         gray = cv2.bitwise_not(gray)
     return gray
 
@@ -75,7 +79,6 @@ def classify(img_bgr: np.ndarray,
     _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
     # ── Stage 2: erosion test ─────────────────────────────────────────────────
-    # Erode away thin lines; only "thick" ink (noteheads) survives
     k = cv2.getStructuringElement(
         cv2.MORPH_ELLIPSE, (erosion_radius * 2 + 1, erosion_radius * 2 + 1)
     )
@@ -98,32 +101,28 @@ def classify(img_bgr: np.ndarray,
     h_ratio = bh / h_img
 
     debug.update({
-        "largest_blob_area":     int(area),
-        "largest_blob_bbox":     f"{bw}x{bh}",
-        "fill_ratio":            round(fill, 3),
-        "height_ratio":          round(h_ratio, 3),
+        "largest_blob_area": int(area),
+        "largest_blob_bbox": f"{bw}x{bh}",
+        "fill_ratio":        round(fill, 3),
+        "height_ratio":      round(h_ratio, 3),
     })
 
-    # A valid notehead+stem blob must be large enough, tall enough, and sparse enough
-    if area < min_area:
-        return "REMOVE", f"blob_too_small", debug
-    if h_ratio < min_h_ratio:
-        return "REMOVE", f"blob_too_short", debug
-    if fill > max_fill:
-        return "REMOVE", f"blob_too_dense", debug
+    if area    < min_area:    return "REMOVE", "blob_too_small",  debug
+    if h_ratio < min_h_ratio: return "REMOVE", "blob_too_short",  debug
+    if fill    > max_fill:    return "REMOVE", "blob_too_dense",  debug
 
     return "KEEP", "notehead_detected", debug
 
 
 def scan_folder(
-    folder:        Path,
-    width_thresh:  int,
-    erosion_radius:int,
-    min_area:      float,
-    min_h_ratio:   float,
-    max_fill:      float,
-    dry_run:       bool,
-    log_path:      Path,
+    folder: Path,
+    width_thresh: int,
+    erosion_radius: int,
+    min_area: float,
+    min_h_ratio: float,
+    max_fill: float,
+    dry_run: bool,
+    log_path: Path,
 ) -> None:
     images = sorted(
         p for p in folder.iterdir()
@@ -132,7 +131,7 @@ def scan_folder(
 
     if not images:
         print(f"No supported images found in: {folder}")
-        sys.exit(0)
+        return
 
     print(f"\nScanning {len(images)} images in: {folder}")
     print(f"  Width threshold  : < {width_thresh} px")
@@ -149,7 +148,7 @@ def scan_folder(
     for img_path in images:
         img = cv2.imread(str(img_path))
         if img is None:
-            print(f"  ?  {img_path.name}  (could not read — skipped)")
+            print(f"  ? {img_path.name} (could not read — skipped)")
             continue
 
         decision, reason, debug = classify(
@@ -157,15 +156,10 @@ def scan_folder(
         )
 
         marker = "✓" if decision == "KEEP" else "✗"
-        tag    = f"  [{reason}]" if decision == "REMOVE" else ""
-        print(f"  {marker}  {img_path.name}{tag}")
+        tag    = f" [{reason}]" if decision == "REMOVE" else ""
+        print(f"  {marker} {img_path.name}{tag}")
 
-        rows.append({
-            "file":     img_path.name,
-            "decision": decision,
-            "reason":   reason,
-            **debug,
-        })
+        rows.append({"file": img_path.name, "decision": decision, "reason": reason, **debug})
 
         if decision == "REMOVE":
             n_removed += 1
@@ -193,44 +187,91 @@ def scan_folder(
     print(f"\nReport saved to: {log_path}")
 
 
-def main():
+def run(
+    folder,
+    *,
+    width_thresh:   int   = WIDTH_THRESH,
+    erosion_radius: int   = EROSION_RADIUS,
+    min_area:       float = MIN_AREA,
+    min_h_ratio:    float = MIN_H_RATIO,
+    max_fill:       float = MAX_FILL,
+    dry_run:        bool  = False,
+    log:            str   = None,
+) -> None:
+    """
+    Programmatic entry point — equivalent to running the script from the terminal.
+
+    Args:
+        folder:         Path to the image folder (str or Path).
+        width_thresh:   Images narrower than this (px) are removed.
+        erosion_radius: Erosion kernel radius in px.
+        min_area:       Min largest-blob area in px².
+        min_h_ratio:    Min blob_h / img_h ratio.
+        max_fill:       Max blob fill ratio.
+        dry_run:        If True, simulate without deleting files.
+        log:            CSV report path. Defaults to <folder>/filter_report.csv.
+
+    Example:
+        import isolated_note_filter as isonf
+        isonf("media/linenotes")
+        isonf("media/linenotes", dry_run=True, min_area=1500)
+    """
+    folder = Path(folder).expanduser().resolve()
+    if not folder.is_dir():
+        raise NotADirectoryError(f"'{folder}' is not a valid directory.")
+
+    log_path = Path(log) if log else folder / "filter_report.csv"
+    scan_folder(
+        folder=folder,
+        width_thresh=width_thresh,
+        erosion_radius=erosion_radius,
+        min_area=min_area,
+        min_h_ratio=min_h_ratio,
+        max_fill=max_fill,
+        dry_run=dry_run,
+        log_path=log_path,
+    )
+
+
+# Make the module itself callable:  isonf("media/linenotes")
+import sys as _sys
+_sys.modules[__name__].__class__ = type(
+    "_CallableModule",
+    (type(_sys.modules[__name__]),),
+    {"__call__": staticmethod(lambda folder, **kw: run(folder, **kw))},
+)
+
+
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Remove isolated-note images that lack a valid notehead."
     )
-    parser.add_argument("--folder",           required=True)
-    parser.add_argument("--width-thresh",     type=int,   default=WIDTH_THRESH,
+    parser.add_argument("--folder",          required=True)
+    parser.add_argument("--width-thresh",    type=int,   default=WIDTH_THRESH,
                         help=f"Images narrower than this (px) are removed (default: {WIDTH_THRESH})")
-    parser.add_argument("--erosion-radius",   type=int,   default=EROSION_RADIUS,
+    parser.add_argument("--erosion-radius",  type=int,   default=EROSION_RADIUS,
                         help=f"Erosion kernel radius in px (default: {EROSION_RADIUS})")
-    parser.add_argument("--min-area",         type=float, default=MIN_AREA,
+    parser.add_argument("--min-area",        type=float, default=MIN_AREA,
                         help=f"Min largest-blob area px² (default: {MIN_AREA})")
-    parser.add_argument("--min-h-ratio",      type=float, default=MIN_H_RATIO,
+    parser.add_argument("--min-h-ratio",     type=float, default=MIN_H_RATIO,
                         help=f"Min blob_h/img_h ratio (default: {MIN_H_RATIO})")
-    parser.add_argument("--max-fill",         type=float, default=MAX_FILL,
+    parser.add_argument("--max-fill",        type=float, default=MAX_FILL,
                         help=f"Max blob fill ratio (default: {MAX_FILL})")
-    parser.add_argument("--dry-run",          action="store_true",
+    parser.add_argument("--dry-run",         action="store_true",
                         help="Simulate without deleting files")
-    parser.add_argument("--log",              default=None,
+    parser.add_argument("--log",             default=None,
                         help="CSV report path (default: <folder>/filter_report.csv)")
 
-    args   = parser.parse_args()
-    folder = Path(args.folder).expanduser().resolve()
-
-    if not folder.is_dir():
-        print(f"Error: '{folder}' is not a valid directory.")
-        sys.exit(1)
-
-    log_path = Path(args.log) if args.log else folder / "filter_report.csv"
-
-    scan_folder(
-        folder         = folder,
+    args      = parser.parse_args()
+    run(
+        folder         = args.folder,
         width_thresh   = args.width_thresh,
         erosion_radius = args.erosion_radius,
         min_area       = args.min_area,
         min_h_ratio    = args.min_h_ratio,
         max_fill       = args.max_fill,
         dry_run        = args.dry_run,
-        log_path       = log_path,
+        log            = args.log,
     )
 
 

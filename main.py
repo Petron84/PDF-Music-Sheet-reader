@@ -9,6 +9,7 @@ from statdicer import LineContour
 import legacycode.garbagemodeltruthbuilder as garbagemodeltruthbuilder
 import actionmodelbuilder as actionmodelbuilder
 from Scraping.scraperMain import downloadsheet as fetchsheet
+import isolated_note_filter as isonf
 
 def readMyPic():
     img = cv.imread('media\\blanktreble.png')
@@ -39,5 +40,5 @@ if __name__ == "__main__":
     fetchsheet()
     imagepath = "media\\selected_sheet.png"
     lineContour = LineContour(imagepath)
-    
+    isonf.isolated_note_filter("media\\linenotes")
 
