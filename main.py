@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 from legacycode.geminicode import geminihelper
+from pip import install
 from statdicer import LineContour
 import legacycode.garbagemodeltruthbuilder as garbagemodeltruthbuilder
 import actionmodelbuilder as actionmodelbuilder
@@ -34,6 +35,7 @@ def findFirstBlack(image,segment):
     
     
 if __name__ == "__main__":
+    install()
     fetchsheet()
     imagepath = "media\\selected_sheet.png"
     lineContour = LineContour(imagepath)
