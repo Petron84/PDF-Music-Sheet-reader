@@ -1,7 +1,7 @@
-import scraper 
-from sites import sites
+from Scraping import scraper 
+from Scraping import sites
 import time
-import pdf2img
+from Scraping import pdf2img
 
 def crawlMain():
     site = sites[1]
@@ -10,9 +10,8 @@ def crawlMain():
     links = scraper.get_links(webpage, base_url)
     pdf_links = scraper.follow_links(site, links)
 
-def downloadMain():
+def downloadsheet():
     pdf = pdf2img.pdf_request()
     pdf2img.pdf_convert(pdf)
 
 
-downloadMain()

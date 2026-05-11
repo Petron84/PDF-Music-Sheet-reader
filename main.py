@@ -7,6 +7,7 @@ from legacycode.geminicode import geminihelper
 from statdicer import LineContour
 import legacycode.garbagemodeltruthbuilder as garbagemodeltruthbuilder
 import actionmodelbuilder as actionmodelbuilder
+from Scraping.scraperMain import downloadsheet as fetchsheet
 
 def readMyPic():
     img = cv.imread('media\\blanktreble.png')
@@ -33,7 +34,8 @@ def findFirstBlack(image,segment):
     
     
 if __name__ == "__main__":
-    imagepath = "media\\pdf2png(2).png"
+    fetchsheet()
+    imagepath = "media\\selected_sheet.png"
     lineContour = LineContour(imagepath)
     # actionmodelbuilder.train_action_model()
 

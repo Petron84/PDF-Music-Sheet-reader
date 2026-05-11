@@ -2,6 +2,7 @@ from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import pypdfium2 as pdfium
 import os
+from PIL import Image
 
 
 def pdf_request():
@@ -9,26 +10,34 @@ def pdf_request():
 
     pdf_path = askopenfilename(
         title = "Please Select a music PDF",
-        filetypes = [("PDF Files", "*.pdf")]
+          filetypes=[
+        ("Supported Files", "*.pdf *.png"),
+        ("PDF Files", "*.pdf"),
+        ("PNG Files", "*.png"),]
     )
     return pdf_path
     
 def pdf_convert(pdf_path):
-
-    folder = "media"
-    os.makedirs(folder, exist_ok=True)
-
-    save_path = os.path.join(
+     folder = "media"
+     os.makedirs(folder, exist_ok=True)
+    
+     save_path = os.path.join(
         folder,
-        f"page_.png"
+        f"selected_sheet.png"
           )
+     
+     #Checks if the selected file is already a PNG image, if so it just saves it to the media folder without conversion
+     if pdf_path.lower().endswith('.png'):
+        print("Selected file is already a PNG image.")
+        image = Image.open(pdf_path)
+        image.save(save_path)
+        return
 
-    pdf = pdfium.PdfDocument(pdf_path)
 
-    for i, page in enumerate(pdf):
+     pdf = pdfium.PdfDocument(pdf_path)
+
+     for i, page in enumerate(pdf):
          image = page.render(scale=4).to_pil()
          image.save(save_path)
          break
-    print("Image Converted")
-
-pdf_request()
+     print("Image Converted")
