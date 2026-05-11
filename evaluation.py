@@ -49,9 +49,9 @@ def preprocess(image_path):
     img = img / 255.0
 
     #visualize the preprocessed image
-    cv2.imshow("Preprocessed Image", img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow("Preprocessed Image", img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     
     tensor = torch.tensor(img).float()
     tensor = tensor.unsqueeze(0).unsqueeze(0)
@@ -98,7 +98,7 @@ class NoteImage:
 # to the NoteImage object instead of just printing it out. This will allow us to keep track of 
 # the predictions and use them later in the pipeline.
 if __name__ == "__main__":
-    test_folder = "testnotes"
+    test_folder = "linenotes"
     note_images = []
     for filename in os.listdir(test_folder):
         if filename.endswith(".png"):
@@ -110,6 +110,16 @@ if __name__ == "__main__":
             note_image = NoteImage(image_name=filename, image_path=image_path)
             note_image.type = predicted_class  # Assign predicted class to the NoteImage object
             note_image.confidence = confidence  # Assign confidence to the NoteImage object
+
+            # Assign the staff_type, staff_idx, and note_idx based on the filename:
+            # Example filename format: "1_10_treble_2png(2)_v6.png"
+            # This format is assumed to be: <staff_idx>_<note_idx>_<staff_type>_<song_name>.png
+            parts = filename.split("_")
+            if len(parts) >= 4:
+                note_image.staff_idx = int(parts[0])
+                note_image.note_idx = int(parts[1])
+                note_image.staff_type = parts[2]
+
             note_images.append(note_image)
     
     for note_image in note_images:
@@ -122,7 +132,7 @@ folder_name = "note_data"
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
 
-#chat gpt, can we save the note_images without using torch or pickle? maybe we can save them as json files or something like that?
+
 import json
 def save_note_images(note_images, folder_name):
 
@@ -144,6 +154,10 @@ def save_note_images(note_images, folder_name):
     
     with open(os.path.join(folder_name, "note_images.json"), "w") as f:
         json.dump(data_list, f, indent=4)
+
+# extra step: sort the order of the elements in the json file 
+# based on the staff_idx and note_idx, this will help us to access the data later in the pipeline
+note_images.sort(key=lambda x: (x.staff_idx, x.note_idx))
         
 # save the note_images to json files
 save_note_images(note_images, folder_name)

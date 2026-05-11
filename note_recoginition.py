@@ -76,9 +76,11 @@ num_classes = len(dataset.classes)
 model = NoteCNN(num_classes=num_classes).to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)  # smaller LR for Adam
+optimizer = optim.AdamW(model.parameters(), lr=0.001, weight_decay=1e-4)  # smaller LR for Adam
 
-epochs = 20  # more epochs for small data
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3)
+
+epochs = 25  # more epochs for small data
 
 # ==========================
 # Training loop
