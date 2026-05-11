@@ -93,7 +93,8 @@ class LineContour():
     def _breakLines(self):
         """This method will extract the lines from the image."""
         count = 1
-        for line in self.lineContourIndeces:
+        self.lineContourIndeces.reverse()
+        for line in self.lineContourIndeces: # reversing it so that we start with the top line, this is important for associating the lines with the clefs later.
             # print("Processing line contour at index: ", self.contours[line[1]])
             x,y,w,h = cv.boundingRect(self.contours[line[1]])
             lineImage = self.image[y:y+h, x:x+w]
