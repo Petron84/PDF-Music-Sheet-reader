@@ -6,7 +6,7 @@ from sympy import Max
 
 def setupgame():
     '''A simple game where the player looks at images of notes and designates them as "garbage" or "not garbage".'''
-    subfolder = 'media\\actionmodeldataset_v2'
+    subfolder = 'media\\amds_balanced_v2'
     # Create a path object for the subfolder relative to your current location
     subfolder_path = Path(".") / subfolder
     # Check if it exists to avoid errors
@@ -16,7 +16,7 @@ def setupgame():
         startgame(files)
     else:
         print("Folder not found!")
-        files = os.listdir('media\\actionmodeldataset_v2')
+        files = os.listdir('media\\amds_balanced_v2')
         print(len(files))
         
     # getStats(files)
@@ -34,7 +34,7 @@ def startgame(files):
         if i == len(files)-1:
             continue
         file = files[i]
-        img = cv.imread('media\\actionmodeldataset_v2\\' + file)
+        img = cv.imread('media\\amds_balanced_v2\\' + file)
         cv.imshow("Displayed Image", img)
         key = cv.waitKey(0)  # Wait for a key press
         while not (key == ord('0') or key == ord('1') or key == ord('2') or key == ord('3')):
@@ -88,7 +88,7 @@ def getStats(files):
     
     allShapes = []
     for im in nongarbage:
-        img = cv.imread('media\\actionmodeldataset_v2\\' + im)
+        img = cv.imread('media\\amds_balanced_v2\\' + im)
         allShapes.append(img.shape)
         
     max_height = max(shape[0] for shape in allShapes)
@@ -106,7 +106,7 @@ def getStats(files):
 def getMaxShape(files):
     allShapes = []
     for im in files:
-        img = cv.imread('media\\actionmodeldataset_v2\\' + im)
+        img = cv.imread('media\\amds_balanced_v2\\' + im)
         allShapes.append(img.shape)
         
     max_height = max(shape[0] for shape in allShapes)
@@ -142,7 +142,7 @@ def getMaxShape(files):
         f.write(f"Median height: {median_height}\n")
         f.write(f"Median width: {median_width}\n")
 
-def _modifyAllToMakeSize(folderpath='media\\actionmodeldataset', targetheight=395, targetwidth=169):
+def _modifyAllToMakeSize(folderpath='media\\amds_balanced_v2', targetheight=395, targetwidth=169):
     #Max height: 395
     #Max width: 169
     #These were measured previously using getMaxShape()
