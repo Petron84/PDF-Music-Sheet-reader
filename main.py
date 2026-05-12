@@ -3,7 +3,6 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-from legacycode.geminicode import geminihelper
 from pip import install
 from statdicer import LineContour
 import legacycode.garbagemodeltruthbuilder as garbagemodeltruthbuilder
