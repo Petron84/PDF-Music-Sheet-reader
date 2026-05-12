@@ -1,0 +1,682 @@
+[
+    {
+        "image_name": "1_2_treble_2png(2)_v1.png",
+        "image_path": "linenotes\\1_2_treble_2png(2)_v1.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "A4",
+        "staff_type": "treble",
+        "staff_idx": 1,
+        "note_idx": 2
+    },
+    {
+        "image_name": "1_3_bass_2png(2)_v14.png",
+        "image_path": "linenotes\\1_3_bass_2png(2)_v14.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "F3",
+        "staff_type": "bass",
+        "staff_idx": 1,
+        "note_idx": 3
+    },
+    {
+        "image_name": "1_3_treble_2png(2)_v2.png",
+        "image_path": "linenotes\\1_3_treble_2png(2)_v2.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "A4",
+        "staff_type": "treble",
+        "staff_idx": 1,
+        "note_idx": 3
+    },
+    {
+        "image_name": "1_5_bass_2png(2)_v15.png",
+        "image_path": "linenotes\\1_5_bass_2png(2)_v15.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "E3",
+        "staff_type": "bass",
+        "staff_idx": 1,
+        "note_idx": 5
+    },
+    {
+        "image_name": "1_5_treble_2png(2)_v3.png",
+        "image_path": "linenotes\\1_5_treble_2png(2)_v3.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "G4",
+        "staff_type": "treble",
+        "staff_idx": 1,
+        "note_idx": 5
+    },
+    {
+        "image_name": "1_7_bass_2png(2)_v16.png",
+        "image_path": "linenotes\\1_7_bass_2png(2)_v16.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "D3",
+        "staff_type": "bass",
+        "staff_idx": 1,
+        "note_idx": 7
+    },
+    {
+        "image_name": "1_7_treble_2png(2)_v4.png",
+        "image_path": "linenotes\\1_7_treble_2png(2)_v4.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "F4",
+        "staff_type": "treble",
+        "staff_idx": 1,
+        "note_idx": 7
+    },
+    {
+        "image_name": "1_8_treble_2png(2)_v5.png",
+        "image_path": "linenotes\\1_8_treble_2png(2)_v5.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "F4",
+        "staff_type": "treble",
+        "staff_idx": 1,
+        "note_idx": 8
+    },
+    {
+        "image_name": "1_9_bass_2png(2)_v17.png",
+        "image_path": "linenotes\\1_9_bass_2png(2)_v17.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "C3",
+        "staff_type": "bass",
+        "staff_idx": 1,
+        "note_idx": 9
+    },
+    {
+        "image_name": "1_10_treble_2png(2)_v6.png",
+        "image_path": "linenotes\\1_10_treble_2png(2)_v6.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "E4",
+        "staff_type": "treble",
+        "staff_idx": 1,
+        "note_idx": 10
+    },
+    {
+        "image_name": "1_11_bass_2png(2)_v18.png",
+        "image_path": "linenotes\\1_11_bass_2png(2)_v18.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "F3",
+        "staff_type": "bass",
+        "staff_idx": 1,
+        "note_idx": 11
+    },
+    {
+        "image_name": "1_11_treble_2png(2)_v7.png",
+        "image_path": "linenotes\\1_11_treble_2png(2)_v7.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "E4",
+        "staff_type": "treble",
+        "staff_idx": 1,
+        "note_idx": 11
+    },
+    {
+        "image_name": "1_13_treble_2png(2)_v8.png",
+        "image_path": "linenotes\\1_13_treble_2png(2)_v8.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "D4",
+        "staff_type": "treble",
+        "staff_idx": 1,
+        "note_idx": 13
+    },
+    {
+        "image_name": "1_14_bass_2png(2)_v20.png",
+        "image_path": "linenotes\\1_14_bass_2png(2)_v20.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "G3",
+        "staff_type": "bass",
+        "staff_idx": 1,
+        "note_idx": 14
+    },
+    {
+        "image_name": "1_16_bass_2png(2)_v21.png",
+        "image_path": "linenotes\\1_16_bass_2png(2)_v21.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "C3",
+        "staff_type": "bass",
+        "staff_idx": 1,
+        "note_idx": 16
+    },
+    {
+        "image_name": "1_21_treble_2png(2)_v12.png",
+        "image_path": "linenotes\\1_21_treble_2png(2)_v12.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "C4",
+        "staff_type": "treble",
+        "staff_idx": 1,
+        "note_idx": 21
+    },
+    {
+        "image_name": "2_2_treble_2png(2)_v1.png",
+        "image_path": "linenotes\\2_2_treble_2png(2)_v1.png",
+        "type": "Quarter Note",
+        "confidence": 0.9999,
+        "pitch": "G4",
+        "staff_type": "treble",
+        "staff_idx": 2,
+        "note_idx": 2
+    },
+    {
+        "image_name": "2_3_bass_2png(2)_v17.png",
+        "image_path": "linenotes\\2_3_bass_2png(2)_v17.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "E3",
+        "staff_type": "bass",
+        "staff_idx": 2,
+        "note_idx": 3
+    },
+    {
+        "image_name": "2_3_treble_2png(2)_v2.png",
+        "image_path": "linenotes\\2_3_treble_2png(2)_v2.png",
+        "type": "Quarter Note",
+        "confidence": 0.9999,
+        "pitch": "G4",
+        "staff_type": "treble",
+        "staff_idx": 2,
+        "note_idx": 3
+    },
+    {
+        "image_name": "2_5_bass_2png(2)_v18.png",
+        "image_path": "linenotes\\2_5_bass_2png(2)_v18.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "D3",
+        "staff_type": "bass",
+        "staff_idx": 2,
+        "note_idx": 5
+    },
+    {
+        "image_name": "2_5_treble_2png(2)_v3.png",
+        "image_path": "linenotes\\2_5_treble_2png(2)_v3.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "F4",
+        "staff_type": "treble",
+        "staff_idx": 2,
+        "note_idx": 5
+    },
+    {
+        "image_name": "2_6_treble_2png(2)_v4.png",
+        "image_path": "linenotes\\2_6_treble_2png(2)_v4.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "F4",
+        "staff_type": "treble",
+        "staff_idx": 2,
+        "note_idx": 6
+    },
+    {
+        "image_name": "2_7_bass_2png(2)_v19.png",
+        "image_path": "linenotes\\2_7_bass_2png(2)_v19.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "C3",
+        "staff_type": "bass",
+        "staff_idx": 2,
+        "note_idx": 7
+    },
+    {
+        "image_name": "2_8_treble_2png(2)_v5.png",
+        "image_path": "linenotes\\2_8_treble_2png(2)_v5.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "E4",
+        "staff_type": "treble",
+        "staff_idx": 2,
+        "note_idx": 8
+    },
+    {
+        "image_name": "2_9_bass_2png(2)_v20.png",
+        "image_path": "linenotes\\2_9_bass_2png(2)_v20.png",
+        "type": "Quarter Note",
+        "confidence": 0.9999,
+        "pitch": "C3",
+        "staff_type": "bass",
+        "staff_idx": 2,
+        "note_idx": 9
+    },
+    {
+        "image_name": "2_11_treble_2png(2)_v7.png",
+        "image_path": "linenotes\\2_11_treble_2png(2)_v7.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "E4",
+        "staff_type": "treble",
+        "staff_idx": 2,
+        "note_idx": 11
+    },
+    {
+        "image_name": "2_28_bass_2png(2)_v22.png",
+        "image_path": "linenotes\\2_28_bass_2png(2)_v22.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "C3",
+        "staff_type": "bass",
+        "staff_idx": 2,
+        "note_idx": 28
+    },
+    {
+        "image_name": "2_29_treble_2png(2)_v9.png",
+        "image_path": "linenotes\\2_29_treble_2png(2)_v9.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "D4",
+        "staff_type": "treble",
+        "staff_idx": 2,
+        "note_idx": 29
+    },
+    {
+        "image_name": "2_30_bass_2png(2)_v23.png",
+        "image_path": "linenotes\\2_30_bass_2png(2)_v23.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "E3",
+        "staff_type": "bass",
+        "staff_idx": 2,
+        "note_idx": 30
+    },
+    {
+        "image_name": "2_32_treble_2png(2)_v11.png",
+        "image_path": "linenotes\\2_32_treble_2png(2)_v11.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "C4",
+        "staff_type": "treble",
+        "staff_idx": 2,
+        "note_idx": 32
+    },
+    {
+        "image_name": "2_35_treble_2png(2)_v13.png",
+        "image_path": "linenotes\\2_35_treble_2png(2)_v13.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "C4",
+        "staff_type": "treble",
+        "staff_idx": 2,
+        "note_idx": 35
+    },
+    {
+        "image_name": "2_38_treble_2png(2)_v14.png",
+        "image_path": "linenotes\\2_38_treble_2png(2)_v14.png",
+        "type": "Quarter Note",
+        "confidence": 0.9999,
+        "pitch": "G4",
+        "staff_type": "treble",
+        "staff_idx": 2,
+        "note_idx": 38
+    },
+    {
+        "image_name": "2_39_treble_2png(2)_v15.png",
+        "image_path": "linenotes\\2_39_treble_2png(2)_v15.png",
+        "type": "Quarter Note",
+        "confidence": 0.9999,
+        "pitch": "G4",
+        "staff_type": "treble",
+        "staff_idx": 2,
+        "note_idx": 39
+    },
+    {
+        "image_name": "3_2_treble_2png(2)_v1.png",
+        "image_path": "linenotes\\3_2_treble_2png(2)_v1.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "D4",
+        "staff_type": "treble",
+        "staff_idx": 3,
+        "note_idx": 2
+    },
+    {
+        "image_name": "3_3_bass_2png(2)_v13.png",
+        "image_path": "linenotes\\3_3_bass_2png(2)_v13.png",
+        "type": "16th Notes",
+        "confidence": 0.5477,
+        "pitch": "F3",
+        "staff_type": "bass",
+        "staff_idx": 3,
+        "note_idx": 3
+    },
+    {
+        "image_name": "3_3_treble_2png(2)_v2.png",
+        "image_path": "linenotes\\3_3_treble_2png(2)_v2.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "D4",
+        "staff_type": "treble",
+        "staff_idx": 3,
+        "note_idx": 3
+    },
+    {
+        "image_name": "3_4_bass_2png(2)_v14.png",
+        "image_path": "linenotes\\3_4_bass_2png(2)_v14.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "G3",
+        "staff_type": "bass",
+        "staff_idx": 3,
+        "note_idx": 4
+    },
+    {
+        "image_name": "3_6_bass_2png(2)_v15.png",
+        "image_path": "linenotes\\3_6_bass_2png(2)_v15.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "E3",
+        "staff_type": "bass",
+        "staff_idx": 3,
+        "note_idx": 6
+    },
+    {
+        "image_name": "3_6_treble_2png(2)_v4.png",
+        "image_path": "linenotes\\3_6_treble_2png(2)_v4.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "C4",
+        "staff_type": "treble",
+        "staff_idx": 3,
+        "note_idx": 6
+    },
+    {
+        "image_name": "3_8_bass_2png(2)_v16.png",
+        "image_path": "linenotes\\3_8_bass_2png(2)_v16.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "E3",
+        "staff_type": "bass",
+        "staff_idx": 3,
+        "note_idx": 8
+    },
+    {
+        "image_name": "3_9_treble_2png(2)_v5.png",
+        "image_path": "linenotes\\3_9_treble_2png(2)_v5.png",
+        "type": "Quarter Note",
+        "confidence": 0.9999,
+        "pitch": "G4",
+        "staff_type": "treble",
+        "staff_idx": 3,
+        "note_idx": 9
+    },
+    {
+        "image_name": "3_10_bass_2png(2)_v17.png",
+        "image_path": "linenotes\\3_10_bass_2png(2)_v17.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "D3",
+        "staff_type": "bass",
+        "staff_idx": 3,
+        "note_idx": 10
+    },
+    {
+        "image_name": "3_10_treble_2png(2)_v6.png",
+        "image_path": "linenotes\\3_10_treble_2png(2)_v6.png",
+        "type": "Quarter Note",
+        "confidence": 0.9998,
+        "pitch": "G4",
+        "staff_type": "treble",
+        "staff_idx": 3,
+        "note_idx": 10
+    },
+    {
+        "image_name": "3_12_bass_2png(2)_v18.png",
+        "image_path": "linenotes\\3_12_bass_2png(2)_v18.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "C3",
+        "staff_type": "bass",
+        "staff_idx": 3,
+        "note_idx": 12
+    },
+    {
+        "image_name": "3_12_treble_2png(2)_v7.png",
+        "image_path": "linenotes\\3_12_treble_2png(2)_v7.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "F4",
+        "staff_type": "treble",
+        "staff_idx": 3,
+        "note_idx": 12
+    },
+    {
+        "image_name": "3_13_treble_2png(2)_v8.png",
+        "image_path": "linenotes\\3_13_treble_2png(2)_v8.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "F4",
+        "staff_type": "treble",
+        "staff_idx": 3,
+        "note_idx": 13
+    },
+    {
+        "image_name": "3_14_bass_2png(2)_v19.png",
+        "image_path": "linenotes\\3_14_bass_2png(2)_v19.png",
+        "type": "16th Notes",
+        "confidence": 1.0,
+        "pitch": "B2",
+        "staff_type": "bass",
+        "staff_idx": 3,
+        "note_idx": 14
+    },
+    {
+        "image_name": "3_15_bass_2png(2)_v20.png",
+        "image_path": "linenotes\\3_15_bass_2png(2)_v20.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "G3",
+        "staff_type": "bass",
+        "staff_idx": 3,
+        "note_idx": 15
+    },
+    {
+        "image_name": "3_15_treble_2png(2)_v9.png",
+        "image_path": "linenotes\\3_15_treble_2png(2)_v9.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "E4",
+        "staff_type": "treble",
+        "staff_idx": 3,
+        "note_idx": 15
+    },
+    {
+        "image_name": "3_16_treble_2png(2)_v10.png",
+        "image_path": "linenotes\\3_16_treble_2png(2)_v10.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "E4",
+        "staff_type": "treble",
+        "staff_idx": 3,
+        "note_idx": 16
+    },
+    {
+        "image_name": "3_18_treble_2png(2)_v11.png",
+        "image_path": "linenotes\\3_18_treble_2png(2)_v11.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "D4",
+        "staff_type": "treble",
+        "staff_idx": 3,
+        "note_idx": 18
+    },
+    {
+        "image_name": "4_4_bass_2png(2)_v18.png",
+        "image_path": "linenotes\\4_4_bass_2png(2)_v18.png",
+        "type": "16th Notes",
+        "confidence": 0.8982,
+        "pitch": "unknown(slot=16)",
+        "staff_type": "bass",
+        "staff_idx": 4,
+        "note_idx": 4
+    },
+    {
+        "image_name": "4_5_treble_2png(2)_v4.png",
+        "image_path": "linenotes\\4_5_treble_2png(2)_v4.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "C4",
+        "staff_type": "treble",
+        "staff_idx": 4,
+        "note_idx": 5
+    },
+    {
+        "image_name": "4_6_bass_2png(2)_v19.png",
+        "image_path": "linenotes\\4_6_bass_2png(2)_v19.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "E3",
+        "staff_type": "bass",
+        "staff_idx": 4,
+        "note_idx": 6
+    },
+    {
+        "image_name": "4_8_bass_2png(2)_v20.png",
+        "image_path": "linenotes\\4_8_bass_2png(2)_v20.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "F3",
+        "staff_type": "bass",
+        "staff_idx": 4,
+        "note_idx": 8
+    },
+    {
+        "image_name": "4_9_treble_2png(2)_v6.png",
+        "image_path": "linenotes\\4_9_treble_2png(2)_v6.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "C4",
+        "staff_type": "treble",
+        "staff_idx": 4,
+        "note_idx": 9
+    },
+    {
+        "image_name": "4_10_bass_2png(2)_v21.png",
+        "image_path": "linenotes\\4_10_bass_2png(2)_v21.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "E3",
+        "staff_type": "bass",
+        "staff_idx": 4,
+        "note_idx": 10
+    },
+    {
+        "image_name": "4_12_bass_2png(2)_v22.png",
+        "image_path": "linenotes\\4_12_bass_2png(2)_v22.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "D3",
+        "staff_type": "bass",
+        "staff_idx": 4,
+        "note_idx": 12
+    },
+    {
+        "image_name": "4_12_treble_2png(2)_v7.png",
+        "image_path": "linenotes\\4_12_treble_2png(2)_v7.png",
+        "type": "Quarter Note",
+        "confidence": 0.9999,
+        "pitch": "G4",
+        "staff_type": "treble",
+        "staff_idx": 4,
+        "note_idx": 12
+    },
+    {
+        "image_name": "4_13_treble_2png(2)_v8.png",
+        "image_path": "linenotes\\4_13_treble_2png(2)_v8.png",
+        "type": "Quarter Note",
+        "confidence": 0.9999,
+        "pitch": "G4",
+        "staff_type": "treble",
+        "staff_idx": 4,
+        "note_idx": 13
+    },
+    {
+        "image_name": "4_14_bass_2png(2)_v23.png",
+        "image_path": "linenotes\\4_14_bass_2png(2)_v23.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "C3",
+        "staff_type": "bass",
+        "staff_idx": 4,
+        "note_idx": 14
+    },
+    {
+        "image_name": "4_15_treble_2png(2)_v9.png",
+        "image_path": "linenotes\\4_15_treble_2png(2)_v9.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "A4",
+        "staff_type": "treble",
+        "staff_idx": 4,
+        "note_idx": 15
+    },
+    {
+        "image_name": "4_16_treble_2png(2)_v10.png",
+        "image_path": "linenotes\\4_16_treble_2png(2)_v10.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "A4",
+        "staff_type": "treble",
+        "staff_idx": 4,
+        "note_idx": 16
+    },
+    {
+        "image_name": "4_18_treble_2png(2)_v11.png",
+        "image_path": "linenotes\\4_18_treble_2png(2)_v11.png",
+        "type": "Half Notes",
+        "confidence": 1.0,
+        "pitch": "G4",
+        "staff_type": "treble",
+        "staff_idx": 4,
+        "note_idx": 18
+    },
+    {
+        "image_name": "4_20_treble_2png(2)_v12.png",
+        "image_path": "linenotes\\4_20_treble_2png(2)_v12.png",
+        "type": "Whole Notes",
+        "confidence": 0.7689,
+        "pitch": "F4",
+        "staff_type": "treble",
+        "staff_idx": 4,
+        "note_idx": 20
+    },
+    {
+        "image_name": "4_21_treble_2png(2)_v13.png",
+        "image_path": "linenotes\\4_21_treble_2png(2)_v13.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "F4",
+        "staff_type": "treble",
+        "staff_idx": 4,
+        "note_idx": 21
+    },
+    {
+        "image_name": "4_23_treble_2png(2)_v14.png",
+        "image_path": "linenotes\\4_23_treble_2png(2)_v14.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "E4",
+        "staff_type": "treble",
+        "staff_idx": 4,
+        "note_idx": 23
+    },
+    {
+        "image_name": "4_24_treble_2png(2)_v15.png",
+        "image_path": "linenotes\\4_24_treble_2png(2)_v15.png",
+        "type": "Quarter Note",
+        "confidence": 1.0,
+        "pitch": "E4",
+        "staff_type": "treble",
+        "staff_idx": 4,
+        "note_idx": 24
+    }
+]
