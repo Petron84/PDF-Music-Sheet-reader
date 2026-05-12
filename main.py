@@ -1,12 +1,18 @@
+import torch
 import cv2 as cv
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-from geminicode import geminihelper
+from legacycode.geminicode import geminihelper
+from pip import install
+from statdicer import LineContour
+import legacycode.garbagemodeltruthbuilder as garbagemodeltruthbuilder
+import actionmodelbuilder as actionmodelbuilder
+from Scraping.scraperMain import downloadsheet as fetchsheet
+import isolated_note_filter as isonf
 
 def readMyPic():
     img = cv.imread('media\\blanktreble.png')
-    
     # img.shape returns a tuple: (Height, Width, Channels)
     height, width, channels = img.shape
     cv.imshow("Displayed Image", img)
@@ -30,5 +36,8 @@ def findFirstBlack(image,segment):
     
     
 if __name__ == "__main__":
-    readMyPic()
-    #geminihelper()
+    install()
+    fetchsheet()
+    imagepath = "media\\selected_sheet.png"
+    lineContour = LineContour(imagepath)
+    isonf("media\\linenotes")
