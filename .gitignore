@@ -1,0 +1,3 @@
+.gitinore
+__pycache__/
+venv/

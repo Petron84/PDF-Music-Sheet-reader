@@ -1,0 +1,24 @@
+Garbage: 6784
+Widen Left: 1618
+Widen Right: 2001
+Picture: 1513
+Max height of non-garbage images: 395
+Max width of non-garbage images: 169
+Max height: 395
+Max width: 169
+Average height: 313.15490475790887
+Average width: 51.038012922715446
+Median height: 375
+Median width: 45
+Max height: 395
+Max width: 169
+Average height: 313.15490475790887
+Average width: 51.038012922715446
+Median height: 375
+Median width: 45
+Max height: 395
+Max width: 169
+Average height: 313.15490475790887
+Average width: 51.038012922715446
+Median height: 375
+Median width: 45
