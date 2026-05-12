@@ -40,5 +40,4 @@ if __name__ == "__main__":
     fetchsheet()
     imagepath = "media\\selected_sheet.png"
     lineContour = LineContour(imagepath)
-    isonf.isolated_note_filter("media\\linenotes")
 
