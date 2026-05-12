@@ -161,3 +161,5 @@ note_images.sort(key=lambda x: (x.staff_idx, x.note_idx))
         
 # save the note_images to json files
 save_note_images(note_images, folder_name)
+
+print(f"Saved {len(note_images)} note images to '{folder_name}/note_images.json'")
