@@ -398,6 +398,8 @@ class LineProcessor():
         notecount = 0
         lastend = 0
         skipcount = 0
+
+        self.model.to(device)
         
         for (start, end) in x_ranges:
             if lastend > start:
