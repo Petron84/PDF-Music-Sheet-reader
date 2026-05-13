@@ -98,7 +98,7 @@ class NoteImage:
 # to the NoteImage object instead of just printing it out. This will allow us to keep track of 
 # the predictions and use them later in the pipeline.
 if __name__ == "__main__":
-    test_folder = "linenotes"
+    test_folder = "media/linenotes"
     note_images = []
     for filename in os.listdir(test_folder):
         if filename.endswith(".png"):
